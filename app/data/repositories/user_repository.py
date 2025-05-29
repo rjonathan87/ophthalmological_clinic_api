@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.domain import models
 from app.domain import schemas
 from passlib.context import CryptContext
@@ -44,7 +44,25 @@ class UserRepository:
         return db_user
 
     def get_users(self, skip: int = 0, limit: int = 100):
-        return self.db.query(models.User).offset(skip).limit(limit).all()
+        return self.db.query(models.User)\
+            .options(
+                joinedload(models.User.role),
+                joinedload(models.User.clinic)
+            )\
+            .offset(skip)\
+            .limit(limit)\
+            .all()
+
+    def get_users_by_clinic(self, clinic_id: int, skip: int = 0, limit: int = 100):
+        return self.db.query(models.User)\
+            .filter(models.User.associated_clinic_id == clinic_id)\
+            .options(
+                joinedload(models.User.role),
+                joinedload(models.User.clinic)
+            )\
+            .offset(skip)\
+            .limit(limit)\
+            .all()
 
     def update_user(self, user_id: int, user_update: schemas.UserUpdate):
         db_user = self.get_user_by_id(user_id)

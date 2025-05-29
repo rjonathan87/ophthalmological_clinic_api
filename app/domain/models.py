@@ -9,9 +9,9 @@ class Clinic(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     address = Column(String(255))
-    phone = Column(String(30))
+    phone_number = Column(String(30))
     email = Column(String(100))
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True) 
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
@@ -19,6 +19,30 @@ class Clinic(Base):
 
     def __repr__(self):
         return f"<Clinic(name='{self.name}')>"
+
+class Permission(Base):
+    __tablename__ = "permissions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    description = Column(String(255))
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+    def __repr__(self):
+        return f"<Permission(name='{self.name}')>"
+
+class RolePermission(Base):
+    __tablename__ = "rolepermissions"
+
+    role_id = Column(Integer, ForeignKey("roles.id"), primary_key=True)
+    permission_id = Column(Integer, ForeignKey("permissions.id"), primary_key=True)
+    
+    role = relationship("Role", back_populates="role_permissions")
+    permission = relationship("Permission", back_populates="role_permissions")
+
+    def __repr__(self):
+        return f"<RolePermission(role_id={self.role_id}, permission_id={self.permission_id})>"
 
 class Role(Base):
     __tablename__ = "roles"
@@ -31,9 +55,16 @@ class Role(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
     users = relationship("User", back_populates="role")
+    role_permissions = relationship("RolePermission", back_populates="role")
+
+    @property
+    def permissions(self):
+        return [rp.permission for rp in self.role_permissions]
 
     def __repr__(self):
         return f"<Role(name='{self.name}')>"
+
+Permission.role_permissions = relationship("RolePermission", back_populates="permission")
 
 class User(Base):
     __tablename__ = "users"

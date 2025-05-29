@@ -23,6 +23,31 @@ def has_role(required_role_name: str):
         return current_user
     return role_checker
 
+def require_permission(permission_name: str):
+    async def _require_permission(
+        current_user: models.User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+    ):
+        if not current_user.role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User has no role assigned"
+            )
+            
+        # Verificar si el rol tiene el permiso requerido
+        has_permission = any(
+            perm.name == permission_name 
+            for perm in current_user.role.permissions
+        )
+        
+        if not has_permission:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not enough permissions"
+            )
+        return current_user
+    return _require_permission
+
 # Ejemplos de roles específicos
 def is_admin(current_user: models.User = Depends(get_current_user)):
     return has_role("admin")(current_user)

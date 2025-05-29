@@ -1,0 +1,1881 @@
+-- MySQL dump 10.13  Distrib 8.0.19, for Win64 (x86_64)
+--
+-- Host: localhost    Database: ophthalmological_clinic
+-- ------------------------------------------------------
+-- Server version	8.0.35
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `appointments`
+--
+
+DROP TABLE IF EXISTS `appointments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `appointments` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `patient_id` int NOT NULL,
+  `primary_doctor_id` int DEFAULT NULL,
+  `resource_id` int DEFAULT NULL,
+  `start_time` timestamp NOT NULL,
+  `end_time` timestamp NOT NULL,
+  `appointment_type` varchar(100) DEFAULT NULL,
+  `status` enum('Scheduled','Confirmed','CheckedIn','InProgress','Completed','Cancelled','NoShow') NOT NULL DEFAULT 'Scheduled',
+  `reason_for_visit` text,
+  `cancellation_reason` text,
+  `confirmation_sent_at` timestamp NULL DEFAULT NULL,
+  `reminder_sent_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `resource_id` (`resource_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  KEY `idx_appointment_time` (`start_time`,`end_time`),
+  KEY `idx_appointment_status` (`status`),
+  KEY `idx_appointment_doctor_time` (`primary_doctor_id`,`start_time`),
+  KEY `idx_appointment_patient_time` (`patient_id`,`start_time`),
+  CONSTRAINT `appointments_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`),
+  CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `appointments_ibfk_3` FOREIGN KEY (`primary_doctor_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `appointments_ibfk_4` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `appointments_ibfk_5` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `appointments_ibfk_6` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `appointments`
+--
+
+LOCK TABLES `appointments` WRITE;
+/*!40000 ALTER TABLE `appointments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `appointments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `appointmentservices`
+--
+
+DROP TABLE IF EXISTS `appointmentservices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `appointmentservices` (
+  `appointment_id` int NOT NULL,
+  `service_id` int NOT NULL,
+  PRIMARY KEY (`appointment_id`,`service_id`),
+  KEY `service_id` (`service_id`),
+  CONSTRAINT `appointmentservices_ibfk_1` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `appointmentservices_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `appointmentservices`
+--
+
+LOCK TABLES `appointmentservices` WRITE;
+/*!40000 ALTER TABLE `appointmentservices` DISABLE KEYS */;
+/*!40000 ALTER TABLE `appointmentservices` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auditlogs`
+--
+
+DROP TABLE IF EXISTS `auditlogs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `auditlogs` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `user_id` int DEFAULT NULL,
+  `clinic_id` int DEFAULT NULL,
+  `action_type` varchar(50) NOT NULL,
+  `entity_type` varchar(50) NOT NULL,
+  `entity_id` varchar(100) DEFAULT NULL,
+  `details` text,
+  `old_values` json DEFAULT NULL,
+  `new_values` json DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `severity` enum('Low','Medium','High','Critical') DEFAULT NULL,
+  `related_records` json DEFAULT NULL,
+  `system_component` varchar(100) DEFAULT NULL,
+  `is_reviewed` tinyint(1) DEFAULT '0',
+  `reviewed_by_user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `idx_audit_timestamp` (`timestamp`),
+  KEY `idx_audit_user` (`user_id`),
+  KEY `idx_audit_entity` (`entity_type`,`entity_id`),
+  KEY `fk_audit_reviewer` (`reviewed_by_user_id`),
+  CONSTRAINT `auditlogs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `auditlogs_ibfk_2` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_audit_reviewer` FOREIGN KEY (`reviewed_by_user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auditlogs`
+--
+
+LOCK TABLES `auditlogs` WRITE;
+/*!40000 ALTER TABLE `auditlogs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auditlogs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `clinical_protocols`
+--
+
+DROP TABLE IF EXISTS `clinical_protocols`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `clinical_protocols` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `description` text,
+  `protocol_content` json NOT NULL,
+  `version` varchar(20) NOT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `clinical_protocols`
+--
+
+LOCK TABLES `clinical_protocols` WRITE;
+/*!40000 ALTER TABLE `clinical_protocols` DISABLE KEYS */;
+/*!40000 ALTER TABLE `clinical_protocols` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `clinical_studies`
+--
+
+DROP TABLE IF EXISTS `clinical_studies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `clinical_studies` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `study_name` varchar(255) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `principal_investigator_id` int DEFAULT NULL,
+  `protocol_number` varchar(100) DEFAULT NULL,
+  `status` enum('Active','Completed','Suspended') DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `clinical_studies`
+--
+
+LOCK TABLES `clinical_studies` WRITE;
+/*!40000 ALTER TABLE `clinical_studies` DISABLE KEYS */;
+/*!40000 ALTER TABLE `clinical_studies` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `clinics`
+--
+
+DROP TABLE IF EXISTS `clinics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `clinics` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `address` text,
+  `phone_number` varchar(30) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `website` varchar(255) DEFAULT NULL,
+  `timezone` varchar(50) NOT NULL DEFAULT 'UTC',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `clinics`
+--
+
+LOCK TABLES `clinics` WRITE;
+/*!40000 ALTER TABLE `clinics` DISABLE KEYS */;
+/*!40000 ALTER TABLE `clinics` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `consentforms`
+--
+
+DROP TABLE IF EXISTS `consentforms`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `consentforms` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int NOT NULL,
+  `clinic_id` int NOT NULL,
+  `consultation_id` int DEFAULT NULL,
+  `appointment_id` int DEFAULT NULL,
+  `form_template_id` int DEFAULT NULL,
+  `form_title` varchar(255) NOT NULL,
+  `form_content_version` text NOT NULL,
+  `status` enum('Pending','Signed','Revoked') NOT NULL DEFAULT 'Pending',
+  `signed_at` timestamp NULL DEFAULT NULL,
+  `signature_data` text,
+  `signature_method` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `consultation_id` (`consultation_id`),
+  KEY `appointment_id` (`appointment_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  CONSTRAINT `consentforms_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `consentforms_ibfk_2` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`),
+  CONSTRAINT `consentforms_ibfk_3` FOREIGN KEY (`consultation_id`) REFERENCES `consultations` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `consentforms_ibfk_4` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `consentforms_ibfk_5` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `consentforms_ibfk_6` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `consentforms`
+--
+
+LOCK TABLES `consentforms` WRITE;
+/*!40000 ALTER TABLE `consentforms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `consentforms` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `consultations`
+--
+
+DROP TABLE IF EXISTS `consultations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `consultations` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `appointment_id` int NOT NULL,
+  `patient_id` int NOT NULL,
+  `clinic_id` int NOT NULL,
+  `attending_doctor_id` int NOT NULL,
+  `consultation_start_time` timestamp NULL DEFAULT NULL,
+  `consultation_end_time` timestamp NULL DEFAULT NULL,
+  `chief_complaint` text,
+  `history_of_present_illness` text,
+  `past_medical_history` text,
+  `family_history` text,
+  `social_history` text,
+  `review_of_systems` text,
+  `assessment_plan` text,
+  `status` enum('Open','Signed','Closed') NOT NULL DEFAULT 'Open',
+  `signed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `appointment_id` (`appointment_id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `attending_doctor_id` (`attending_doctor_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  CONSTRAINT `consultations_ibfk_1` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `consultations_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `consultations_ibfk_3` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`),
+  CONSTRAINT `consultations_ibfk_4` FOREIGN KEY (`attending_doctor_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `consultations_ibfk_5` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `consultations_ibfk_6` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `consultations`
+--
+
+LOCK TABLES `consultations` WRITE;
+/*!40000 ALTER TABLE `consultations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `consultations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `contact_lens_prescriptions`
+--
+
+DROP TABLE IF EXISTS `contact_lens_prescriptions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contact_lens_prescriptions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `prescription_id` int NOT NULL,
+  `lens_type` varchar(100) DEFAULT NULL,
+  `brand` varchar(100) DEFAULT NULL,
+  `base_curve_od` decimal(4,2) DEFAULT NULL,
+  `base_curve_os` decimal(4,2) DEFAULT NULL,
+  `diameter_od` decimal(4,2) DEFAULT NULL,
+  `diameter_os` decimal(4,2) DEFAULT NULL,
+  `replacement_schedule` varchar(50) DEFAULT NULL,
+  `wear_schedule` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `contact_lens_prescriptions`
+--
+
+LOCK TABLES `contact_lens_prescriptions` WRITE;
+/*!40000 ALTER TABLE `contact_lens_prescriptions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `contact_lens_prescriptions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `data_access_logs`
+--
+
+DROP TABLE IF EXISTS `data_access_logs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `data_access_logs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `accessed_table` varchar(100) NOT NULL,
+  `record_id` int NOT NULL,
+  `access_type` enum('View','Create','Update','Delete') NOT NULL,
+  `access_timestamp` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `data_access_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `data_access_logs`
+--
+
+LOCK TABLES `data_access_logs` WRITE;
+/*!40000 ALTER TABLE `data_access_logs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `data_access_logs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `diagnoses`
+--
+
+DROP TABLE IF EXISTS `diagnoses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `diagnoses` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `consultation_id` int NOT NULL,
+  `patient_id` int NOT NULL,
+  `icd10_code` varchar(10) DEFAULT NULL,
+  `diagnosis_description` varchar(255) NOT NULL,
+  `is_primary` tinyint(1) NOT NULL DEFAULT '0',
+  `diagnosis_date` date NOT NULL,
+  `notes` text,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `consultation_id` (`consultation_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  KEY `idx_diagnosis_patient` (`patient_id`),
+  KEY `idx_diagnosis_code` (`icd10_code`),
+  CONSTRAINT `diagnoses_ibfk_1` FOREIGN KEY (`consultation_id`) REFERENCES `consultations` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `diagnoses_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `diagnoses_ibfk_3` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `diagnoses_ibfk_4` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `diagnoses`
+--
+
+LOCK TABLES `diagnoses` WRITE;
+/*!40000 ALTER TABLE `diagnoses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `diagnoses` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `educational_resources`
+--
+
+DROP TABLE IF EXISTS `educational_resources`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `educational_resources` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `content_type` enum('Article','Video','PDF','Interactive') NOT NULL,
+  `content_url` varchar(512) DEFAULT NULL,
+  `description` text,
+  `category` varchar(100) DEFAULT NULL,
+  `tags` json DEFAULT NULL,
+  `language` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `educational_resources`
+--
+
+LOCK TABLES `educational_resources` WRITE;
+/*!40000 ALTER TABLE `educational_resources` DISABLE KEYS */;
+/*!40000 ALTER TABLE `educational_resources` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `equipment`
+--
+
+DROP TABLE IF EXISTS `equipment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `equipment` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `resource_id` int DEFAULT NULL,
+  `equipment_name` varchar(150) NOT NULL,
+  `serial_number` varchar(100) DEFAULT NULL,
+  `model_number` varchar(100) DEFAULT NULL,
+  `manufacturer` varchar(100) DEFAULT NULL,
+  `purchase_date` date DEFAULT NULL,
+  `warranty_expiry_date` date DEFAULT NULL,
+  `location` varchar(100) DEFAULT NULL,
+  `status` enum('Operational','UnderMaintenance','Decommissioned','NeedsCalibration') NOT NULL DEFAULT 'Operational',
+  `last_maintenance_date` date DEFAULT NULL,
+  `next_maintenance_date` date DEFAULT NULL,
+  `last_calibration_date` date DEFAULT NULL,
+  `next_calibration_date` date DEFAULT NULL,
+  `notes` text,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `serial_number` (`serial_number`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `resource_id` (`resource_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  KEY `idx_equipment_status` (`status`),
+  CONSTRAINT `equipment_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `equipment_ibfk_2` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `equipment_ibfk_3` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `equipment_ibfk_4` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `equipment`
+--
+
+LOCK TABLES `equipment` WRITE;
+/*!40000 ALTER TABLE `equipment` DISABLE KEYS */;
+/*!40000 ALTER TABLE `equipment` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventoryitems`
+--
+
+DROP TABLE IF EXISTS `inventoryitems`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventoryitems` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `item_name` varchar(150) NOT NULL,
+  `item_code` varchar(50) DEFAULT NULL,
+  `description` text,
+  `category` varchar(100) DEFAULT NULL,
+  `supplier` varchar(150) DEFAULT NULL,
+  `quantity_on_hand` int NOT NULL DEFAULT '0',
+  `reorder_level` int DEFAULT NULL,
+  `unit_cost` decimal(10,2) DEFAULT NULL,
+  `storage_location` varchar(100) DEFAULT NULL,
+  `expiry_date` date DEFAULT NULL,
+  `last_counted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `item_code` (`item_code`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  KEY `idx_inventory_item_name` (`item_name`),
+  KEY `idx_inventory_category` (`category`),
+  CONSTRAINT `inventoryitems_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `inventoryitems_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `inventoryitems_ibfk_3` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventoryitems`
+--
+
+LOCK TABLES `inventoryitems` WRITE;
+/*!40000 ALTER TABLE `inventoryitems` DISABLE KEYS */;
+/*!40000 ALTER TABLE `inventoryitems` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `invoiceitems`
+--
+
+DROP TABLE IF EXISTS `invoiceitems`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `invoiceitems` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `invoice_id` int NOT NULL,
+  `service_id` int DEFAULT NULL,
+  `description` varchar(255) NOT NULL,
+  `quantity` decimal(10,2) NOT NULL DEFAULT '1.00',
+  `unit_price` decimal(10,2) NOT NULL,
+  `total_price` decimal(10,2) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `invoice_id` (`invoice_id`),
+  KEY `service_id` (`service_id`),
+  CONSTRAINT `invoiceitems_ibfk_1` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `invoiceitems_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `invoiceitems`
+--
+
+LOCK TABLES `invoiceitems` WRITE;
+/*!40000 ALTER TABLE `invoiceitems` DISABLE KEYS */;
+/*!40000 ALTER TABLE `invoiceitems` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `invoices`
+--
+
+DROP TABLE IF EXISTS `invoices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `invoices` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `patient_id` int NOT NULL,
+  `consultation_id` int DEFAULT NULL,
+  `appointment_id` int DEFAULT NULL,
+  `invoice_number` varchar(50) NOT NULL,
+  `invoice_date` date NOT NULL,
+  `due_date` date DEFAULT NULL,
+  `total_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `amount_paid` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `status` enum('Draft','Sent','PartiallyPaid','Paid','Overdue','Void') NOT NULL DEFAULT 'Draft',
+  `notes` text,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `invoice_number` (`invoice_number`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `consultation_id` (`consultation_id`),
+  KEY `appointment_id` (`appointment_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  KEY `idx_invoice_status` (`status`),
+  KEY `idx_invoice_patient` (`patient_id`),
+  KEY `idx_invoice_date` (`invoice_date`),
+  CONSTRAINT `invoices_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`),
+  CONSTRAINT `invoices_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `invoices_ibfk_3` FOREIGN KEY (`consultation_id`) REFERENCES `consultations` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `invoices_ibfk_4` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `invoices_ibfk_5` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `invoices_ibfk_6` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `invoices`
+--
+
+LOCK TABLES `invoices` WRITE;
+/*!40000 ALTER TABLE `invoices` DISABLE KEYS */;
+/*!40000 ALTER TABLE `invoices` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `iopexams`
+--
+
+DROP TABLE IF EXISTS `iopexams`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `iopexams` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `consultation_id` int NOT NULL,
+  `exam_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `method` varchar(50) DEFAULT NULL,
+  `iop_od` int DEFAULT NULL,
+  `iop_os` int DEFAULT NULL,
+  `time_measured` time DEFAULT NULL,
+  `notes` text,
+  `created_by_user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `consultation_id` (`consultation_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  CONSTRAINT `iopexams_ibfk_1` FOREIGN KEY (`consultation_id`) REFERENCES `consultations` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `iopexams_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `iopexams`
+--
+
+LOCK TABLES `iopexams` WRITE;
+/*!40000 ALTER TABLE `iopexams` DISABLE KEYS */;
+/*!40000 ALTER TABLE `iopexams` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `licensespermits`
+--
+
+DROP TABLE IF EXISTS `licensespermits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `licensespermits` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `authority` varchar(150) DEFAULT NULL,
+  `license_number` varchar(100) DEFAULT NULL,
+  `issue_date` date DEFAULT NULL,
+  `expiry_date` date NOT NULL,
+  `status` enum('Active','Expired','PendingRenewal') NOT NULL DEFAULT 'Active',
+  `document_path` varchar(512) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  KEY `idx_license_expiry` (`expiry_date`),
+  CONSTRAINT `licensespermits_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `licensespermits_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `licensespermits_ibfk_3` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `licensespermits`
+--
+
+LOCK TABLES `licensespermits` WRITE;
+/*!40000 ALTER TABLE `licensespermits` DISABLE KEYS */;
+/*!40000 ALTER TABLE `licensespermits` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `maintenancelogs`
+--
+
+DROP TABLE IF EXISTS `maintenancelogs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `maintenancelogs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `equipment_id` int NOT NULL,
+  `log_type` enum('Maintenance','Calibration','Repair') NOT NULL,
+  `log_date` date NOT NULL,
+  `description` text NOT NULL,
+  `performed_by_user_id` int DEFAULT NULL,
+  `external_technician` varchar(150) DEFAULT NULL,
+  `cost` decimal(10,2) DEFAULT NULL,
+  `next_due_date` date DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `equipment_id` (`equipment_id`),
+  KEY `performed_by_user_id` (`performed_by_user_id`),
+  CONSTRAINT `maintenancelogs_ibfk_1` FOREIGN KEY (`equipment_id`) REFERENCES `equipment` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `maintenancelogs_ibfk_2` FOREIGN KEY (`performed_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `maintenancelogs`
+--
+
+LOCK TABLES `maintenancelogs` WRITE;
+/*!40000 ALTER TABLE `maintenancelogs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `maintenancelogs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `marketingcampaigns`
+--
+
+DROP TABLE IF EXISTS `marketingcampaigns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `marketingcampaigns` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `channel` varchar(50) DEFAULT NULL,
+  `target_audience` text,
+  `budget` decimal(10,2) DEFAULT NULL,
+  `status` enum('Planned','Active','Completed','Cancelled') NOT NULL DEFAULT 'Planned',
+  `goal` text,
+  `results_summary` text,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  CONSTRAINT `marketingcampaigns_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `marketingcampaigns_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `marketingcampaigns_ibfk_3` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `marketingcampaigns`
+--
+
+LOCK TABLES `marketingcampaigns` WRITE;
+/*!40000 ALTER TABLE `marketingcampaigns` DISABLE KEYS */;
+/*!40000 ALTER TABLE `marketingcampaigns` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ophthalmological_images`
+--
+
+DROP TABLE IF EXISTS `ophthalmological_images`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ophthalmological_images` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `consultation_id` int NOT NULL,
+  `patient_id` int NOT NULL,
+  `image_type` enum('Retinography','OCT','Angiography','Topography','Other') DEFAULT NULL,
+  `image_path` varchar(512) DEFAULT NULL,
+  `description` text,
+  `capture_date` timestamp NULL DEFAULT NULL,
+  `analysis_notes` text,
+  `created_by_user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `consultation_id` (`consultation_id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  CONSTRAINT `ophthalmological_images_ibfk_1` FOREIGN KEY (`consultation_id`) REFERENCES `consultations` (`id`),
+  CONSTRAINT `ophthalmological_images_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `ophthalmological_images_ibfk_3` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ophthalmological_images`
+--
+
+LOCK TABLES `ophthalmological_images` WRITE;
+/*!40000 ALTER TABLE `ophthalmological_images` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ophthalmological_images` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `opticalprescriptiondetails`
+--
+
+DROP TABLE IF EXISTS `opticalprescriptiondetails`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `opticalprescriptiondetails` (
+  `prescription_id` int NOT NULL,
+  `sphere_od` decimal(4,2) DEFAULT NULL,
+  `cylinder_od` decimal(4,2) DEFAULT NULL,
+  `axis_od` int DEFAULT NULL,
+  `add_od` decimal(4,2) DEFAULT NULL,
+  `prism_od` varchar(50) DEFAULT NULL,
+  `sphere_os` decimal(4,2) DEFAULT NULL,
+  `cylinder_os` decimal(4,2) DEFAULT NULL,
+  `axis_os` int DEFAULT NULL,
+  `add_os` decimal(4,2) DEFAULT NULL,
+  `prism_os` varchar(50) DEFAULT NULL,
+  `pd` decimal(4,1) DEFAULT NULL,
+  `lens_recommendations` text,
+  `expiry_date` date DEFAULT NULL,
+  PRIMARY KEY (`prescription_id`),
+  CONSTRAINT `opticalprescriptiondetails_ibfk_1` FOREIGN KEY (`prescription_id`) REFERENCES `prescriptions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `opticalprescriptiondetails`
+--
+
+LOCK TABLES `opticalprescriptiondetails` WRITE;
+/*!40000 ALTER TABLE `opticalprescriptiondetails` DISABLE KEYS */;
+/*!40000 ALTER TABLE `opticalprescriptiondetails` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Temporary view structure for view `patient_appointments_view`
+--
+
+DROP TABLE IF EXISTS `patient_appointments_view`;
+/*!50001 DROP VIEW IF EXISTS `patient_appointments_view`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `patient_appointments_view` AS SELECT 
+ 1 AS `id`,
+ 1 AS `clinic_id`,
+ 1 AS `patient_id`,
+ 1 AS `primary_doctor_id`,
+ 1 AS `resource_id`,
+ 1 AS `start_time`,
+ 1 AS `end_time`,
+ 1 AS `appointment_type`,
+ 1 AS `status`,
+ 1 AS `reason_for_visit`,
+ 1 AS `cancellation_reason`,
+ 1 AS `confirmation_sent_at`,
+ 1 AS `reminder_sent_at`,
+ 1 AS `created_at`,
+ 1 AS `updated_at`,
+ 1 AS `created_by_user_id`,
+ 1 AS `updated_by_user_id`,
+ 1 AS `deleted_at`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `patient_education_tracking`
+--
+
+DROP TABLE IF EXISTS `patient_education_tracking`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `patient_education_tracking` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int NOT NULL,
+  `resource_id` int NOT NULL,
+  `viewed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `completion_status` enum('Started','Completed','In Progress') NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `resource_id` (`resource_id`),
+  CONSTRAINT `patient_education_tracking_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `patient_education_tracking_ibfk_2` FOREIGN KEY (`resource_id`) REFERENCES `educational_resources` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `patient_education_tracking`
+--
+
+LOCK TABLES `patient_education_tracking` WRITE;
+/*!40000 ALTER TABLE `patient_education_tracking` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patient_education_tracking` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Temporary view structure for view `patient_invoices_view`
+--
+
+DROP TABLE IF EXISTS `patient_invoices_view`;
+/*!50001 DROP VIEW IF EXISTS `patient_invoices_view`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `patient_invoices_view` AS SELECT 
+ 1 AS `id`,
+ 1 AS `clinic_id`,
+ 1 AS `patient_id`,
+ 1 AS `consultation_id`,
+ 1 AS `appointment_id`,
+ 1 AS `invoice_number`,
+ 1 AS `invoice_date`,
+ 1 AS `due_date`,
+ 1 AS `total_amount`,
+ 1 AS `amount_paid`,
+ 1 AS `status`,
+ 1 AS `notes`,
+ 1 AS `created_at`,
+ 1 AS `updated_at`,
+ 1 AS `created_by_user_id`,
+ 1 AS `updated_by_user_id`,
+ 1 AS `deleted_at`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `patient_notifications`
+--
+
+DROP TABLE IF EXISTS `patient_notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `patient_notifications` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int NOT NULL,
+  `notification_type` enum('Appointment','Results','Payment','Message') NOT NULL,
+  `content` text NOT NULL,
+  `is_read` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  CONSTRAINT `patient_notifications_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `patient_notifications`
+--
+
+LOCK TABLES `patient_notifications` WRITE;
+/*!40000 ALTER TABLE `patient_notifications` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patient_notifications` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `patient_portal_sessions`
+--
+
+DROP TABLE IF EXISTS `patient_portal_sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `patient_portal_sessions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int NOT NULL,
+  `login_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `logout_time` timestamp NULL DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `device_info` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  CONSTRAINT `patient_portal_sessions_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `patient_portal_sessions`
+--
+
+LOCK TABLES `patient_portal_sessions` WRITE;
+/*!40000 ALTER TABLE `patient_portal_sessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patient_portal_sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `patientcommunications`
+--
+
+DROP TABLE IF EXISTS `patientcommunications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `patientcommunications` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `patient_id` int NOT NULL,
+  `clinic_id` int NOT NULL,
+  `communication_type` enum('Email','SMS','PhoneCall','PortalMessage','Chatbot') NOT NULL,
+  `direction` enum('Outgoing','Incoming') NOT NULL,
+  `subject` varchar(255) DEFAULT NULL,
+  `content` text NOT NULL,
+  `status` enum('Sent','Delivered','Failed','Read','Received') NOT NULL,
+  `sent_received_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `related_appointment_id` int DEFAULT NULL,
+  `related_invoice_id` int DEFAULT NULL,
+  `created_by_user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `related_appointment_id` (`related_appointment_id`),
+  KEY `related_invoice_id` (`related_invoice_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `idx_comm_patient_time` (`patient_id`,`sent_received_at`),
+  KEY `idx_comm_type_status` (`communication_type`,`status`),
+  CONSTRAINT `patientcommunications_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `patientcommunications_ibfk_2` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `patientcommunications_ibfk_3` FOREIGN KEY (`related_appointment_id`) REFERENCES `appointments` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `patientcommunications_ibfk_4` FOREIGN KEY (`related_invoice_id`) REFERENCES `invoices` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `patientcommunications_ibfk_5` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `patientcommunications`
+--
+
+LOCK TABLES `patientcommunications` WRITE;
+/*!40000 ALTER TABLE `patientcommunications` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patientcommunications` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `patientdocuments`
+--
+
+DROP TABLE IF EXISTS `patientdocuments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `patientdocuments` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int NOT NULL,
+  `clinic_id` int NOT NULL,
+  `document_type` varchar(100) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(512) NOT NULL,
+  `mime_type` varchar(100) DEFAULT NULL,
+  `description` text,
+  `uploaded_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `uploaded_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `uploaded_by_user_id` (`uploaded_by_user_id`),
+  CONSTRAINT `patientdocuments_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `patientdocuments_ibfk_2` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `patientdocuments_ibfk_3` FOREIGN KEY (`uploaded_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `patientdocuments`
+--
+
+LOCK TABLES `patientdocuments` WRITE;
+/*!40000 ALTER TABLE `patientdocuments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patientdocuments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `patients`
+--
+
+DROP TABLE IF EXISTS `patients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `patients` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `patient_identifier` varchar(50) DEFAULT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `date_of_birth` date NOT NULL,
+  `gender` enum('Male','Female','Other','PreferNotToSay') DEFAULT NULL,
+  `address` text,
+  `phone_number` varchar(30) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `emergency_contact_name` varchar(150) DEFAULT NULL,
+  `emergency_contact_phone` varchar(30) DEFAULT NULL,
+  `primary_care_physician` varchar(150) DEFAULT NULL,
+  `insurance_provider` varchar(100) DEFAULT NULL,
+  `insurance_policy_number` varchar(100) DEFAULT NULL,
+  `medical_history_summary` text,
+  `allergies` text,
+  `preferred_communication_channel` enum('Email','SMS','Phone','Portal') DEFAULT NULL,
+  `gdpr_consent` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `patient_identifier` (`patient_identifier`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  KEY `idx_patient_name` (`last_name`,`first_name`),
+  KEY `idx_patient_dob` (`date_of_birth`),
+  KEY `idx_patient_email` (`email`),
+  KEY `idx_patient_phone` (`phone_number`),
+  KEY `patients_ibfk_4` (`user_id`),
+  CONSTRAINT `patients_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`),
+  CONSTRAINT `patients_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `patients_ibfk_3` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `patients_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `patients`
+--
+
+LOCK TABLES `patients` WRITE;
+/*!40000 ALTER TABLE `patients` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patients` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payments`
+--
+
+DROP TABLE IF EXISTS `payments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payments` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `invoice_id` int NOT NULL,
+  `patient_id` int NOT NULL,
+  `clinic_id` int NOT NULL,
+  `payment_date` date NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `payment_method` varchar(50) DEFAULT NULL,
+  `transaction_reference` varchar(100) DEFAULT NULL,
+  `notes` text,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `invoice_id` (`invoice_id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `idx_payment_date` (`payment_date`),
+  CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`),
+  CONSTRAINT `payments_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `payments_ibfk_3` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`),
+  CONSTRAINT `payments_ibfk_4` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payments`
+--
+
+LOCK TABLES `payments` WRITE;
+/*!40000 ALTER TABLE `payments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `payments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `performance_metrics`
+--
+
+DROP TABLE IF EXISTS `performance_metrics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `performance_metrics` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `metric_name` varchar(100) NOT NULL,
+  `metric_value` decimal(10,2) NOT NULL,
+  `metric_target` decimal(10,2) DEFAULT NULL,
+  `measurement_date` date NOT NULL,
+  `metric_category` enum('Clinical','Financial','Operational','Patient Satisfaction') NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `clinic_id` (`clinic_id`),
+  CONSTRAINT `performance_metrics_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `performance_metrics`
+--
+
+LOCK TABLES `performance_metrics` WRITE;
+/*!40000 ALTER TABLE `performance_metrics` DISABLE KEYS */;
+/*!40000 ALTER TABLE `performance_metrics` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `permissions`
+--
+
+DROP TABLE IF EXISTS `permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `permissions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` text,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `permissions`
+--
+
+LOCK TABLES `permissions` WRITE;
+/*!40000 ALTER TABLE `permissions` DISABLE KEYS */;
+INSERT INTO `permissions` VALUES (1,'admin.gestionar_usuarios','Permite crear, editar y eliminar usuarios del sistema','2025-04-14 14:57:52','2025-04-14 14:57:52'),(2,'admin.gestionar_roles','Permite administrar roles y sus permisos asignados','2025-04-14 14:57:52','2025-04-14 14:57:52'),(3,'admin.gestionar_clinicas','Permite administrar la información de las clínicas','2025-04-14 14:57:52','2025-04-14 14:57:52'),(4,'paciente.ver_todos','Permite ver la información de todos los pacientes del sistema','2025-04-14 14:57:52','2025-04-14 14:57:52'),(5,'paciente.ver_asignados','Permite ver solo los pacientes asociados a su clínica o médico','2025-04-14 14:57:52','2025-04-14 14:57:52'),(6,'paciente.crear','Permite registrar nuevos pacientes en el sistema','2025-04-14 14:57:52','2025-04-14 14:57:52'),(7,'paciente.editar','Permite editar la información demográfica de los pacientes','2025-04-14 14:57:52','2025-04-14 14:57:52'),(8,'paciente.eliminar','Permite marcar pacientes como eliminados (soft delete)','2025-04-14 14:57:52','2025-04-14 14:57:52'),(9,'expediente.ver','Permite ver los registros clínicos (historial, consultas) del paciente','2025-04-14 14:57:52','2025-04-14 14:57:52'),(10,'expediente.editar','Permite crear o editar notas clínicas, diagnósticos y exámenes','2025-04-14 14:57:52','2025-04-14 14:57:52'),(11,'expediente.firmar','Permite firmar y finalizar notas clínicas','2025-04-14 14:57:52','2025-04-14 14:57:52'),(12,'cita.agendar','Permite programar nuevas citas para los pacientes','2025-04-14 14:57:52','2025-04-14 14:57:52'),(13,'cita.ver_todas','Permite ver todas las citas agendadas en la clínica o sistema','2025-04-14 14:57:52','2025-04-14 14:57:52'),(14,'cita.ver_propias','Permite ver solo las citas asignadas al propio usuario (doctor/técnico)','2025-04-14 14:57:52','2025-04-14 14:57:52'),(15,'cita.cancelar','Permite cancelar citas existentes','2025-04-14 14:57:52','2025-04-14 14:57:52'),(16,'cita.registrar_llegada','Permite marcar la llegada del paciente (check-in)','2025-04-14 14:57:52','2025-04-14 14:57:52'),(17,'facturacion.crear_factura','Permite generar nuevas facturas para los pacientes','2025-04-14 14:57:52','2025-04-14 14:57:52'),(18,'facturacion.ver_todo','Permite ver todas las facturas y pagos registrados','2025-04-14 14:57:52','2025-04-14 14:57:52'),(19,'facturacion.procesar_pago','Permite registrar los pagos recibidos de los pacientes','2025-04-14 14:57:52','2025-04-14 14:57:52'),(20,'facturacion.gestionar_config','Permite administrar la configuración de facturación y servicios','2025-04-14 14:57:52','2025-04-14 14:57:52'),(21,'inventario.gestionar','Permite administrar los artículos del inventario','2025-04-14 14:57:52','2025-04-14 14:57:52'),(22,'equipo.gestionar','Permite administrar el equipamiento médico y sus mantenimientos','2025-04-14 14:57:52','2025-04-14 14:57:52'),(23,'reportes.ver','Permite visualizar los reportes generados por el sistema','2025-04-14 14:57:52','2025-04-14 14:57:52'),(24,'consentimiento.gestionar','Permite gestionar y rastrear los formularios de consentimiento','2025-04-14 14:57:52','2025-04-14 14:57:52'),(25,'paciente.ver_propio_expediente','Permite al paciente ver su propio expediente médico','2025-05-26 21:24:09','2025-05-26 21:24:09'),(26,'paciente.ver_propias_citas','Permite al paciente ver sus propias citas','2025-05-26 21:24:09','2025-05-26 21:24:09'),(27,'paciente.ver_propias_facturas','Permite al paciente ver sus propias facturas','2025-05-26 21:24:09','2025-05-26 21:24:09'),(28,'paciente.agendar_cita','Permite al paciente agendar nuevas citas','2025-05-26 21:24:09','2025-05-26 21:24:09'),(29,'paciente.ver_propios_documentos','Permite al paciente ver sus propios documentos','2025-05-26 21:24:09','2025-05-26 21:24:09');
+/*!40000 ALTER TABLE `permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `prescriptions`
+--
+
+DROP TABLE IF EXISTS `prescriptions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `prescriptions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `consultation_id` int NOT NULL,
+  `patient_id` int NOT NULL,
+  `prescription_type` enum('Optical','Medication','LabOrder','Other') NOT NULL,
+  `prescription_date` date NOT NULL,
+  `notes` text,
+  `status` enum('Active','Expired','Cancelled') NOT NULL DEFAULT 'Active',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `consultation_id` (`consultation_id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  CONSTRAINT `prescriptions_ibfk_1` FOREIGN KEY (`consultation_id`) REFERENCES `consultations` (`id`),
+  CONSTRAINT `prescriptions_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `prescriptions_ibfk_3` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `prescriptions_ibfk_4` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `prescriptions`
+--
+
+LOCK TABLES `prescriptions` WRITE;
+/*!40000 ALTER TABLE `prescriptions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `prescriptions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `refractionexams`
+--
+
+DROP TABLE IF EXISTS `refractionexams`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `refractionexams` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `consultation_id` int NOT NULL,
+  `exam_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `refraction_type` enum('Manifest','Cycloplegic','Auto') NOT NULL,
+  `sphere_od` decimal(4,2) DEFAULT NULL,
+  `cylinder_od` decimal(4,2) DEFAULT NULL,
+  `axis_od` int DEFAULT NULL,
+  `add_od` decimal(4,2) DEFAULT NULL,
+  `prism_od` varchar(50) DEFAULT NULL,
+  `sphere_os` decimal(4,2) DEFAULT NULL,
+  `cylinder_os` decimal(4,2) DEFAULT NULL,
+  `axis_os` int DEFAULT NULL,
+  `add_os` decimal(4,2) DEFAULT NULL,
+  `prism_os` varchar(50) DEFAULT NULL,
+  `pd` decimal(4,1) DEFAULT NULL,
+  `notes` text,
+  `created_by_user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `consultation_id` (`consultation_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  CONSTRAINT `refractionexams_ibfk_1` FOREIGN KEY (`consultation_id`) REFERENCES `consultations` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `refractionexams_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `refractionexams`
+--
+
+LOCK TABLES `refractionexams` WRITE;
+/*!40000 ALTER TABLE `refractionexams` DISABLE KEYS */;
+/*!40000 ALTER TABLE `refractionexams` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `resources`
+--
+
+DROP TABLE IF EXISTS `resources`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `resources` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `resource_type` enum('Room','Equipment') NOT NULL,
+  `location` varchar(100) DEFAULT NULL,
+  `is_schedulable` tinyint(1) NOT NULL DEFAULT '1',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  CONSTRAINT `resources_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `resources_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `resources_ibfk_3` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `resources`
+--
+
+LOCK TABLES `resources` WRITE;
+/*!40000 ALTER TABLE `resources` DISABLE KEYS */;
+/*!40000 ALTER TABLE `resources` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rolepermissions`
+--
+
+DROP TABLE IF EXISTS `rolepermissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `rolepermissions` (
+  `role_id` int NOT NULL,
+  `permission_id` int NOT NULL,
+  PRIMARY KEY (`role_id`,`permission_id`),
+  KEY `permission_id` (`permission_id`),
+  CONSTRAINT `rolepermissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `rolepermissions_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rolepermissions`
+--
+
+LOCK TABLES `rolepermissions` WRITE;
+/*!40000 ALTER TABLE `rolepermissions` DISABLE KEYS */;
+INSERT INTO `rolepermissions` VALUES (1,1),(2,1),(1,2),(1,3),(1,4),(2,5),(3,5),(5,5),(6,5),(2,6),(5,6),(5,7),(1,9),(3,9),(3,10),(3,11),(2,12),(5,12),(5,13),(3,14),(5,15),(5,16),(6,17),(2,18),(6,18),(6,19),(2,21),(2,22),(2,23),(3,24),(7,25),(7,26),(7,27),(7,28),(7,29);
+/*!40000 ALTER TABLE `rolepermissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `roles` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `description` text,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `roles`
+--
+
+LOCK TABLES `roles` WRITE;
+/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+INSERT INTO `roles` VALUES (1,'SuperAdministrador','Administrador general del sistema con acceso total','2025-04-14 14:57:45','2025-04-14 14:57:45'),(2,'AdministradorClinica','Administrador responsable de gestionar una clínica específica','2025-04-14 14:57:45','2025-04-14 14:57:45'),(3,'Doctor','Médico oftalmólogo que provee atención clínica','2025-04-14 14:57:45','2025-04-14 14:57:45'),(4,'Tecnico','Personal técnico que asiste en exámenes y procedimientos','2025-04-14 14:57:45','2025-04-14 14:57:45'),(5,'Recepcionista','Personal encargado de la recepción, citas y atención inicial','2025-04-14 14:57:45','2025-04-14 14:57:45'),(6,'PersonalFacturacion','Personal encargado de la facturación y cobros','2025-04-14 14:57:45','2025-04-14 14:57:45'),(7,'Paciente','Rol para futuro acceso de pacientes al portal','2025-04-14 14:57:45','2025-04-14 14:57:45');
+/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `security_policies`
+--
+
+DROP TABLE IF EXISTS `security_policies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `security_policies` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `policy_name` varchar(100) NOT NULL,
+  `description` text,
+  `requirements` text,
+  `last_review_date` date DEFAULT NULL,
+  `next_review_date` date DEFAULT NULL,
+  `status` enum('Active','Under Review','Archived') NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `security_policies`
+--
+
+LOCK TABLES `security_policies` WRITE;
+/*!40000 ALTER TABLE `security_policies` DISABLE KEYS */;
+/*!40000 ALTER TABLE `security_policies` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `services`
+--
+
+DROP TABLE IF EXISTS `services`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `services` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `description` text,
+  `duration_minutes` int DEFAULT NULL,
+  `base_price` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `updated_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_clinic_service_name` (`clinic_id`,`name`,`deleted_at`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  KEY `updated_by_user_id` (`updated_by_user_id`),
+  CONSTRAINT `services_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `services_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `services_ibfk_3` FOREIGN KEY (`updated_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `services`
+--
+
+LOCK TABLES `services` WRITE;
+/*!40000 ALTER TABLE `services` DISABLE KEYS */;
+/*!40000 ALTER TABLE `services` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `surgical_procedures`
+--
+
+DROP TABLE IF EXISTS `surgical_procedures`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `surgical_procedures` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int NOT NULL,
+  `surgeon_id` int NOT NULL,
+  `procedure_date` timestamp NULL DEFAULT NULL,
+  `procedure_type` varchar(100) DEFAULT NULL,
+  `eye` enum('OD','OS','OU') DEFAULT NULL,
+  `pre_op_notes` text,
+  `surgical_notes` text,
+  `post_op_notes` text,
+  `complications` text,
+  `status` enum('Scheduled','Completed','Cancelled') DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `surgical_procedures`
+--
+
+LOCK TABLES `surgical_procedures` WRITE;
+/*!40000 ALTER TABLE `surgical_procedures` DISABLE KEYS */;
+/*!40000 ALTER TABLE `surgical_procedures` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `surveyresponses`
+--
+
+DROP TABLE IF EXISTS `surveyresponses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `surveyresponses` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `survey_id` int NOT NULL,
+  `patient_id` int DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  `appointment_id` int DEFAULT NULL,
+  `response_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `response_data` json NOT NULL,
+  `overall_rating` int DEFAULT NULL,
+  `comments` text,
+  `is_anonymous` tinyint(1) NOT NULL DEFAULT '0',
+  `satisfaction_score` int DEFAULT NULL,
+  `nps_score` int DEFAULT NULL,
+  `feedback_category` enum('Service','Staff','Facilities','Treatment') DEFAULT NULL,
+  `action_taken` text,
+  `follow_up_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `survey_id` (`survey_id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `user_id` (`user_id`),
+  KEY `appointment_id` (`appointment_id`),
+  CONSTRAINT `surveyresponses_ibfk_1` FOREIGN KEY (`survey_id`) REFERENCES `surveys` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `surveyresponses_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `surveyresponses_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `surveyresponses_ibfk_4` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `surveyresponses`
+--
+
+LOCK TABLES `surveyresponses` WRITE;
+/*!40000 ALTER TABLE `surveyresponses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `surveyresponses` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `surveys`
+--
+
+DROP TABLE IF EXISTS `surveys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `surveys` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `clinic_id` int NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `survey_type` enum('PatientSatisfaction','EmployeeFeedback','PostConsultation') NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_by_user_id` int DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `clinic_id` (`clinic_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  CONSTRAINT `surveys_ibfk_1` FOREIGN KEY (`clinic_id`) REFERENCES `clinics` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `surveys_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `surveys`
+--
+
+LOCK TABLES `surveys` WRITE;
+/*!40000 ALTER TABLE `surveys` DISABLE KEYS */;
+/*!40000 ALTER TABLE `surveys` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `telemedicine_sessions`
+--
+
+DROP TABLE IF EXISTS `telemedicine_sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `telemedicine_sessions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int NOT NULL,
+  `doctor_id` int NOT NULL,
+  `session_date` timestamp NULL DEFAULT NULL,
+  `platform_used` varchar(100) DEFAULT NULL,
+  `session_notes` text,
+  `follow_up_required` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `telemedicine_sessions`
+--
+
+LOCK TABLES `telemedicine_sessions` WRITE;
+/*!40000 ALTER TABLE `telemedicine_sessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `telemedicine_sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `triage_assessments`
+--
+
+DROP TABLE IF EXISTS `triage_assessments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `triage_assessments` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int NOT NULL,
+  `appointment_id` int DEFAULT NULL,
+  `priority_level` enum('Emergency','Urgent','Non-Urgent') NOT NULL,
+  `symptoms` text NOT NULL,
+  `vital_signs` json DEFAULT NULL,
+  `assessment_notes` text,
+  `assessed_by_user_id` int NOT NULL,
+  `assessed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `appointment_id` (`appointment_id`),
+  KEY `assessed_by_user_id` (`assessed_by_user_id`),
+  CONSTRAINT `triage_assessments_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`),
+  CONSTRAINT `triage_assessments_ibfk_2` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`),
+  CONSTRAINT `triage_assessments_ibfk_3` FOREIGN KEY (`assessed_by_user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `triage_assessments`
+--
+
+LOCK TABLES `triage_assessments` WRITE;
+/*!40000 ALTER TABLE `triage_assessments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `triage_assessments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `phone_number` varchar(30) DEFAULT NULL,
+  `role_id` int NOT NULL,
+  `associated_clinic_id` int DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `last_login_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`),
+  KEY `role_id` (`role_id`),
+  KEY `associated_clinic_id` (`associated_clinic_id`),
+  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
+  CONSTRAINT `users_ibfk_2` FOREIGN KEY (`associated_clinic_id`) REFERENCES `clinics` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'root','$2b$12$rxB0KfeJyoLwrNfWEc/6ruN1MZKkpmAx3Ak90C4ya12YQv1Z8L8PO','root@example.com','root','admin','5555441213',1,NULL,1,NULL,'2025-05-26 23:44:33','2025-05-26 23:44:33',NULL);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `visualacuityexams`
+--
+
+DROP TABLE IF EXISTS `visualacuityexams`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `visualacuityexams` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `consultation_id` int NOT NULL,
+  `exam_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `va_od_sc` varchar(20) DEFAULT NULL,
+  `va_os_sc` varchar(20) DEFAULT NULL,
+  `va_od_cc` varchar(20) DEFAULT NULL,
+  `va_os_cc` varchar(20) DEFAULT NULL,
+  `ph_od` varchar(20) DEFAULT NULL,
+  `ph_os` varchar(20) DEFAULT NULL,
+  `notes` text,
+  `created_by_user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `consultation_id` (`consultation_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  CONSTRAINT `visualacuityexams_ibfk_1` FOREIGN KEY (`consultation_id`) REFERENCES `consultations` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `visualacuityexams_ibfk_2` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `visualacuityexams`
+--
+
+LOCK TABLES `visualacuityexams` WRITE;
+/*!40000 ALTER TABLE `visualacuityexams` DISABLE KEYS */;
+/*!40000 ALTER TABLE `visualacuityexams` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflow_instances`
+--
+
+DROP TABLE IF EXISTS `workflow_instances`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `workflow_instances` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `template_id` int DEFAULT NULL,
+  `patient_id` int DEFAULT NULL,
+  `current_step` int DEFAULT NULL,
+  `status` enum('InProgress','Completed','Cancelled') NOT NULL,
+  `started_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `completed_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `template_id` (`template_id`),
+  KEY `patient_id` (`patient_id`),
+  CONSTRAINT `workflow_instances_ibfk_1` FOREIGN KEY (`template_id`) REFERENCES `workflow_templates` (`id`),
+  CONSTRAINT `workflow_instances_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflow_instances`
+--
+
+LOCK TABLES `workflow_instances` WRITE;
+/*!40000 ALTER TABLE `workflow_instances` DISABLE KEYS */;
+/*!40000 ALTER TABLE `workflow_instances` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `workflow_templates`
+--
+
+DROP TABLE IF EXISTS `workflow_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `workflow_templates` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` text,
+  `workflow_type` enum('Clinical','Administrative','Emergency') NOT NULL,
+  `steps` json NOT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `workflow_templates`
+--
+
+LOCK TABLES `workflow_templates` WRITE;
+/*!40000 ALTER TABLE `workflow_templates` DISABLE KEYS */;
+/*!40000 ALTER TABLE `workflow_templates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'ophthalmological_clinic'
+--
+
+--
+-- Final view structure for view `patient_appointments_view`
+--
+
+/*!50001 DROP VIEW IF EXISTS `patient_appointments_view`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `patient_appointments_view` AS select `a`.`id` AS `id`,`a`.`clinic_id` AS `clinic_id`,`a`.`patient_id` AS `patient_id`,`a`.`primary_doctor_id` AS `primary_doctor_id`,`a`.`resource_id` AS `resource_id`,`a`.`start_time` AS `start_time`,`a`.`end_time` AS `end_time`,`a`.`appointment_type` AS `appointment_type`,`a`.`status` AS `status`,`a`.`reason_for_visit` AS `reason_for_visit`,`a`.`cancellation_reason` AS `cancellation_reason`,`a`.`confirmation_sent_at` AS `confirmation_sent_at`,`a`.`reminder_sent_at` AS `reminder_sent_at`,`a`.`created_at` AS `created_at`,`a`.`updated_at` AS `updated_at`,`a`.`created_by_user_id` AS `created_by_user_id`,`a`.`updated_by_user_id` AS `updated_by_user_id`,`a`.`deleted_at` AS `deleted_at` from (`appointments` `a` join `patients` `p` on((`a`.`patient_id` = `p`.`id`))) where (`p`.`user_id` = current_user()) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `patient_invoices_view`
+--
+
+/*!50001 DROP VIEW IF EXISTS `patient_invoices_view`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `patient_invoices_view` AS select `i`.`id` AS `id`,`i`.`clinic_id` AS `clinic_id`,`i`.`patient_id` AS `patient_id`,`i`.`consultation_id` AS `consultation_id`,`i`.`appointment_id` AS `appointment_id`,`i`.`invoice_number` AS `invoice_number`,`i`.`invoice_date` AS `invoice_date`,`i`.`due_date` AS `due_date`,`i`.`total_amount` AS `total_amount`,`i`.`amount_paid` AS `amount_paid`,`i`.`status` AS `status`,`i`.`notes` AS `notes`,`i`.`created_at` AS `created_at`,`i`.`updated_at` AS `updated_at`,`i`.`created_by_user_id` AS `created_by_user_id`,`i`.`updated_by_user_id` AS `updated_by_user_id`,`i`.`deleted_at` AS `deleted_at` from (`invoices` `i` join `patients` `p` on((`i`.`patient_id` = `p`.`id`))) where (`p`.`user_id` = current_user()) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-05-26 20:47:38

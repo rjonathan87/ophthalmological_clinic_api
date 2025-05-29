@@ -4,7 +4,7 @@ from typing import List
 from app.core.database import get_db
 from app.domain import schemas
 from app.services.user_service import UserService
-from app.api.dependencies import get_current_user, has_role, is_admin
+from app.api.dependencies import get_current_user, require_permission
 from app.domain.models import User as DBUser # Alias para evitar conflicto de nombres
 
 users_router = APIRouter()
@@ -13,7 +13,7 @@ users_router = APIRouter()
 def create_user(
     user: schemas.UserCreate,
     db: Session = Depends(get_db),
-    current_user: DBUser = Depends(is_admin) # Solo un admin puede crear usuarios
+    current_user: DBUser = Depends(require_permission("admin.gestionar_usuarios"))
 ):
     user_service = UserService(db)
     return user_service.create_user(user)
@@ -23,10 +23,10 @@ def get_all_users(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: DBUser = Depends(is_admin) # Solo un admin puede listar todos los usuarios
+    current_user: DBUser = Depends(require_permission("admin.gestionar_usuarios"))
 ):
     user_service = UserService(db)
-    return user_service.get_all_users(skip=skip, limit=limit)
+    return user_service.get_all_users(current_user=current_user, skip=skip, limit=limit)
 
 @users_router.get("/{user_id}", response_model=schemas.UserResponse)
 def get_user(
@@ -36,7 +36,10 @@ def get_user(
 ):
     user_service = UserService(db)
     # Permite al usuario ver su propio perfil o a un admin ver cualquier perfil
-    if current_user.id == user_id or (current_user.role and current_user.role.name == "admin"):
+    if current_user.id == user_id or (current_user.role and any(
+        perm.name == "admin.gestionar_usuarios" 
+        for perm in current_user.role.permissions
+    )):
         return user_service.get_user(user_id)
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
 
@@ -49,7 +52,10 @@ def update_user(
 ):
     user_service = UserService(db)
     # Permite al usuario actualizar su propio perfil o a un admin actualizar cualquier perfil
-    if current_user.id == user_id or (current_user.role and current_user.role.name == "admin"):
+    if current_user.id == user_id or (current_user.role and any(
+        perm.name == "admin.gestionar_usuarios" 
+        for perm in current_user.role.permissions
+    )):
         return user_service.update_user(user_id, user_update)
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
 
@@ -57,7 +63,7 @@ def update_user(
 def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: DBUser = Depends(is_admin) # Solo un admin puede eliminar usuarios
+    current_user: DBUser = Depends(require_permission("admin.gestionar_usuarios"))
 ):
     user_service = UserService(db)
     user_service.delete_user(user_id)

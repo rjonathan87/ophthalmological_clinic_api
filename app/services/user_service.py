@@ -33,8 +33,21 @@ class UserService:
 
         return self.user_repo.create_user(user_create)
 
-    def get_all_users(self, skip: int = 0, limit: int = 100):
-        return self.user_repo.get_users(skip=skip, limit=limit)
+    def get_all_users(self, current_user: models.User, skip: int = 0, limit: int = 100):
+        # Si es SuperAdmin, no aplicar filtro de clínica
+        if current_user.role.name == "SuperAdministrador":
+            return self.user_repo.get_users(skip=skip, limit=limit)
+        
+        # Para otros roles, filtrar por clínica asociada si tienen una
+        if current_user.associated_clinic_id:
+            return self.user_repo.get_users_by_clinic(
+                clinic_id=current_user.associated_clinic_id,
+                skip=skip,
+                limit=limit
+            )
+        
+        # Si no tienen clínica asociada, devolver lista vacía
+        return []
 
     def update_user(self, user_id: int, user_update: schemas.UserUpdate):
         existing_user = self.user_repo.get_user_by_id(user_id)

@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.domain import schemas
-from app.services.auth_service import authenticate_user, create_access_token
+from app.services.auth_service import authenticate_user, create_user_token
 from datetime import timedelta
 from app.core.config import settings
 
@@ -21,7 +21,5 @@ def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username, "role_id": user.role_id}, expires_delta=access_token_expires
-    )
+    access_token = create_user_token(user)
     return {"access_token": access_token, "token_type": "bearer"}
