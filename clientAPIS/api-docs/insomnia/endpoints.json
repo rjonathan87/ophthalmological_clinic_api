@@ -1,0 +1,190 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-05-28T22:55:49.000Z",
+  "__export_source": "insomnia.desktop.app:v11.1.0",
+  "__export_version": "11.1.0",
+  "resources": [
+    {
+      "_id": "env_base",
+      "type": "environment",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8000"
+      },
+      "color": "#3b82f6",
+      "metaSortKey": 1
+    },
+    {
+      "_id": "env_token",
+      "type": "environment",
+      "name": "Auth Token",
+      "data": {
+        "token": ""
+      },
+      "color": "#10b981",
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_auth_token",
+      "type": "request",
+      "name": "1. Get Auth Token (First)",
+      "parentId": "folder_auth",
+      "url": "{{ base_url }}/token",
+      "method": "POST",
+      "description": "Obtener token JWT para autenticación. Credenciales de ejemplo: admin@example.com / password",
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "text": "username=admin%40example.com&password=password"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "authentication": {
+        "type": "none"
+      }
+    },
+    {
+      "_id": "folder_auth",
+      "type": "request_group",
+      "name": "Authentication",
+      "environment": {},
+      "metaSortKey": 3,
+      "color": "#ef4444"
+    },
+    {
+      "_id": "folder_users",
+      "type": "request_group",
+      "name": "Users",
+      "environment": {},
+      "metaSortKey": 4,
+      "color": "#8b5cf6"
+    },
+    {
+      "_id": "req_create_user",
+      "type": "request",
+      "name": "2. Create User (Admin)",
+      "parentId": "folder_users",
+      "url": "{{ base_url }}/users/",
+      "method": "POST",
+      "description": "Crear nuevo usuario (requiere permisos admin)",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePassword123\",\n  \"full_name\": \"John Doe\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ token }}"
+      }
+    },
+    {
+      "_id": "req_get_users",
+      "type": "request",
+      "name": "3. Get All Users (Admin)",
+      "parentId": "folder_users",
+      "url": "{{ base_url }}/users/?skip=0&limit=100",
+      "method": "GET",
+      "description": "Listar todos los usuarios (paginado, requiere permisos admin)",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ token }}"
+      },
+      "parameters": [
+        {
+          "name": "skip",
+          "value": "0",
+          "description": "Número de registros a saltar"
+        },
+        {
+          "name": "limit",
+          "value": "100",
+          "description": "Límite de registros por página"
+        }
+      ]
+    },
+    {
+      "_id": "req_get_user",
+      "type": "request",
+      "name": "4. Get User by ID",
+      "parentId": "folder_users",
+      "url": "{{ base_url }}/users/1",
+      "method": "GET",
+      "description": "Obtener detalles de usuario específico (propio perfil o admin)",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ token }}"
+      }
+    },
+    {
+      "_id": "req_update_user",
+      "type": "request",
+      "name": "5. Update User",
+      "parentId": "folder_users",
+      "url": "{{ base_url }}/users/1",
+      "method": "PUT",
+      "description": "Actualizar información de usuario (propio perfil o admin)",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"newemail@example.com\",\n  \"full_name\": \"Updated Name\",\n  \"password\": \"NewSecurePassword123\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ token }}"
+      }
+    },
+    {
+      "_id": "req_delete_user",
+      "type": "request",
+      "name": "6. Delete User (Admin)",
+      "parentId": "folder_users",
+      "url": "{{ base_url }}/users/1",
+      "method": "DELETE",
+      "description": "Eliminar usuario (requiere permisos admin)",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ token }}"
+      }
+    }
+  ]
+}

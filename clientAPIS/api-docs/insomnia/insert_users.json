@@ -1,0 +1,112 @@
+[
+  {
+    "username": "superadmin_global",
+    "email": "superadmin@example.com",
+    "first_name": "Admin",
+    "last_name": "Global",
+    "phone_number": "600000001",
+    "full_name": "Admin Global",
+    "role_id": 1,
+    "associated_clinic_id": 1,
+    "password": "SuperPassword123!"
+  },
+  {
+    "username": "admin_clinica_central",
+    "email": "admin.central@example.com",
+    "first_name": "Carlos",
+    "last_name": "Pérez",
+    "phone_number": "600000002",
+    "full_name": "Carlos Pérez",
+    "role_id": 2,
+    "associated_clinic_id": 1,
+    "password": "AdminClinicaPass1!"
+  },
+  {
+    "username": "dr.ana_lopez",
+    "email": "ana.lopez.doc@example.com",
+    "first_name": "Ana",
+    "last_name": "López",
+    "phone_number": "600000003",
+    "full_name": "Ana López",
+    "role_id": 3,
+    "associated_clinic_id": 1,
+    "password": "DoctorPassAna!"
+  },
+  {
+    "username": "tec.juan_martinez",
+    "email": "juan.martinez.tec@example.com",
+    "first_name": "Juan",
+    "last_name": "Martínez",
+    "phone_number": "600000004",
+    "full_name": "Juan Martínez",
+    "role_id": 4,
+    "associated_clinic_id": 1,
+    "password": "TecnicoPassJuan!"
+  },
+  {
+    "username": "recep.maria_garcia",
+    "email": "maria.garcia.recep@example.com",
+    "first_name": "Maria",
+    "last_name": "García",
+    "phone_number": "600000005",
+    "full_name": "Maria García",
+    "role_id": 5,
+    "associated_clinic_id": 1,
+    "password": "RecepcionPassMaria!"
+  },
+  {
+    "username": "fact.luis_rodriguez",
+    "email": "luis.rodriguez.fact@example.com",
+    "first_name": "Luis",
+    "last_name": "Rodríguez",
+    "phone_number": "600000006",
+    "full_name": "Luis Rodríguez",
+    "role_id": 6,
+    "associated_clinic_id": 1,
+    "password": "FacturacionPassLuis!"
+  },
+  {
+    "username": "paciente.sofia_fernandez",
+    "email": "sofia.fernandez@example.com",
+    "first_name": "Sofia",
+    "last_name": "Fernández",
+    "phone_number": "600000007",
+    "full_name": "Sofia Fernández",
+    "role_id": 7,
+    "associated_clinic_id": 1,
+    "password": "PacientePassSofia!"
+  },
+  {
+    "username": "paciente.pedro_gomez",
+    "email": "pedro.gomez@example.com",
+    "first_name": "Pedro",
+    "last_name": "Gómez",
+    "phone_number": "600000008",
+    "full_name": "Pedro Gómez",
+    "role_id": 7,
+    "associated_clinic_id": 1,
+    "password": "PacientePassPedro!"
+  },
+  {
+    "username": "paciente.laura_sanchez",
+    "email": "laura.sanchez@example.com",
+    "first_name": "Laura",
+    "last_name": "Sánchez",
+    "phone_number": "600000009",
+    "full_name": "Laura Sánchez",
+    "role_id": 7,
+    "associated_clinic_id": 1,
+    "password": "PacientePassLaura!"
+  },
+  {
+    "username": "dr.miguel_romero",
+    "email": "miguel.romero.doc@example.com",
+    "first_name": "Miguel",
+    "last_name": "Romero",
+    "phone_number": "600000010",
+    "full_name": "Miguel Romero",
+    "role_id": 3,
+    "associated_clinic_id": 1,
+    "password": "DoctorPassMiguel!"
+  }
+]

@@ -1,0 +1,72 @@
+_type: export
+__export_format: 4
+__export_date: "2025-05-28T10:00:00.000Z"
+__export_source: insomnia.desktop.app:v2023.5.8
+workspaces:
+  - _id: wrk_ophthalmological_clinic
+    parentId: null
+    name: Clínica Oftalmológica API
+    description: API para sistema de clínica oftalmológica
+    scope: collection
+
+  - _id: fld_auth
+    parentId: wrk_ophthalmological_clinic
+    name: Autenticación
+    description: Endpoints de autenticación
+    requests:
+      - _id: req_auth_login
+        name: Login
+        url: "{{ _.base_url }}/api/v1/auth/login"
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "email": "admin@oftalmoclinica.com",
+              "password": "admin1234."
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+
+  - _id: fld_users
+    parentId: wrk_ophthalmological_clinic
+    name: Usuarios
+    description: Gestión de usuarios
+    requests:
+      - _id: req_users_list
+        name: Listar Usuarios
+        url: "{{ _.base_url }}/api/v1/users"
+        method: GET
+        headers:
+          - name: Authorization
+            value: "Bearer {{_.token}}"
+
+      - _id: req_users_create
+        name: Crear Usuario
+        url: "{{ _.base_url }}/api/v1/users"
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "username": "admin_user",
+              "email": "admin@oftalmoclinica.com",
+              "first_name": "Juanito",
+              "last_name": "Pérez",
+              "phone_number": "+1234567890",
+              "full_name": "Juanito Pérez",
+              "role_id": 1,
+              "associated_clinic_id": 1,
+              "is_active": true
+            }
+        headers:
+          - name: Authorization
+            value: "Bearer {{_.token}}"
+          - name: Content-Type
+            value: application/json
+
+environments:
+  base_environment:
+    base_url: http://127.0.0.1:8000
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbl91c2VyIiwicm9sZV9pZCI6MSwiY2xpbmljX2lkIjoxLCJleHAiOjE3NDg0OTA5OTB9.bpzP6e4qvtzq983rioHf4DY3_qoPA1mUhpk7HtdBAus
