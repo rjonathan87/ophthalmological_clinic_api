@@ -8,4 +8,13 @@ from .clinical_protocol import router as clinical_protocol_router
 from .clinical_study import router as clinical_study_router
 
 # Exportar los routers para que main.py pueda importarlos fácilmente
-__all__ = ["auth_router", "users_router", "appointments_router", "clinic_router", "appointment_service_router", "audit_log_router", "clinical_protocol_router", "clinical_study_router"]
+__all__ = [
+    "auth_router",
+    "users_router",
+    "appointments_router",
+    "clinic_router",
+    "appointment_service_router",
+    "audit_log_router",
+    "clinical_protocol_router",
+    "clinical_study_router",
+]

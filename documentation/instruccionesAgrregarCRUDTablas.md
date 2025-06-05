@@ -1,4 +1,60 @@
-### Te ayudo a explicar los pasos para agregar nuevos CRUD siguiendo la arquitectura actual del sistema que usa FastAPI con un patrón Repository y Service:
+# Plan estratégico para agregar tablas y evitar errores de relaciones
+### Contexto:
+Para implementar la base de datos de manera efectiva, es crucial seguir un enfoque por fases, comenzando con las tablas que no tienen dependencias y avanzando hacia aquellas que dependen de otras. Esto ayudará a evitar errores de relaciones y garantizar una integración fluida.
+
+### Fase 1 - Tablas Base (sin dependencias):
+1. `clinics`
+2. `roles`
+3. `permissions`
+4. `security_policies`
+5. `educational_resources`
+
+### Fase 2 - Tablas con Dependencias Básicas:
+1. `rolepermissions` (depende de roles y permissions)
+2. `users` (depende de roles y clinics)
+3. `resources` (depende de clinics y users)
+
+### Fase 3 - Tablas de Gestión Clínica:
+1. `patients` (depende de users y clinics)
+2. `clinical_protocols`
+3. `services` (depende de clinics)
+
+### Fase 4 - Tablas de Citas y Consultas:
+1. `appointments` (depende de patients, clinics, users, resources)
+2. `consultations` (depende de appointments, patients, clinics, users)
+3. `appointmentservices` (depende de appointments y services)
+
+### Fase 5 - Tablas de Historial Clínico:
+1. `diagnoses` (depende de consultations, patients, users)
+2. `prescriptions` (depende de consultations, patients, users)
+3. `refractionexams` (depende de consultations, users)
+4. `visualacuityexams` (depende de consultations, users)
+5. `iopexams` (depende de consultations, users)
+
+### Fase 6 - Tablas de Documentación:
+1. `patientdocuments` (depende de patients, clinics, users)
+2. `consentforms` (depende de patients, clinics, consultations, appointments, users)
+
+### Fase 7 - Tablas de Facturación:
+1. `invoices` (depende de patients, clinics, consultations, appointments, users)
+2. `invoiceitems` (depende de invoices, services)
+3. `payments` (depende de invoices, patients, clinics, users)
+
+### Fase 8 - Tablas de Seguimiento y Auditoría:
+1. `auditlogs` (depende de users, clinics)
+2. `patient_education_tracking` (depende de patients, educational_resources)
+3. `performance_metrics` (depende de clinics)
+
+Para cada fase, deberías:
+1. Crear los modelos SQLAlchemy
+2. Definir los schemas Pydantic
+3. Implementar los repositorios
+4. Crear los servicios
+5. Configurar los routers
+6. Probar las APIs resultantes
+
+
+### Sigue estos pasos para agregar nuevos CRUD siguiendo la arquitectura actual del sistema que usa FastAPI con un patrón Repository y Service:
 
 1. **Definir el Modelo en models.py**:
 ```python

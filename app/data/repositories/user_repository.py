@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, joinedload
-from app.domain import models
+from app.domain.models import User
 from app.domain import schemas
 from passlib.context import CryptContext
 
@@ -16,17 +16,17 @@ class UserRepository:
         self.db = db
 
     def get_user_by_id(self, user_id: int):
-        return self.db.query(models.User).filter(models.User.id == user_id).first()
+        return self.db.query(User).filter(User.id == user_id).first()
 
     def get_user_by_username(self, username: str):
-        return self.db.query(models.User).filter(models.User.username == username).first()
+        return self.db.query(User).filter(User.username == username).first()
 
     def get_user_by_email(self, email: str):
-        return self.db.query(models.User).filter(models.User.email == email).first()
+        return self.db.query(User).filter(User.email == email).first()
 
     def create_user(self, user: schemas.UserCreate):
         hashed_password = get_password_hash(user.password)
-        db_user = models.User(
+        db_user = User(
             username=user.username,
             email=user.email,
             first_name=user.first_name,
@@ -44,21 +44,21 @@ class UserRepository:
         return db_user
 
     def get_users(self, skip: int = 0, limit: int = 100):
-        return self.db.query(models.User)\
+        return self.db.query(User)\
             .options(
-                joinedload(models.User.role),
-                joinedload(models.User.clinic)
+                joinedload(User.role),
+                joinedload(User.clinic)
             )\
             .offset(skip)\
             .limit(limit)\
             .all()
 
     def get_users_by_clinic(self, clinic_id: int, skip: int = 0, limit: int = 100):
-        return self.db.query(models.User)\
-            .filter(models.User.associated_clinic_id == clinic_id)\
+        return self.db.query(User)\
+            .filter(User.associated_clinic_id == clinic_id)\
             .options(
-                joinedload(models.User.role),
-                joinedload(models.User.clinic)
+                joinedload(User.role),
+                joinedload(User.clinic)
             )\
             .offset(skip)\
             .limit(limit)\

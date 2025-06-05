@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, HttpUrl
 from typing import Optional, List
 from datetime import datetime
 
@@ -27,7 +27,7 @@ class ClinicBase(BaseModel):
     address: Optional[str] = None
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
-    website: Optional[str] = None
+    website: Optional[HttpUrl] = None
     timezone: str = 'UTC'
     is_active: bool = True
 

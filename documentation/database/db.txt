@@ -218,7 +218,7 @@ CREATE TABLE `clinics` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -227,6 +227,7 @@ CREATE TABLE `clinics` (
 
 LOCK TABLES `clinics` WRITE;
 /*!40000 ALTER TABLE `clinics` DISABLE KEYS */;
+INSERT INTO `clinics` VALUES (1,'Central Vision Center','123 Main Street, Suite 100, Anytown, CA 90210','+1 (555) 123-4567','info@centralvision.com','http://www.centralvision.com','America/Los_Angeles',1,'2025-05-28 03:58:46','2025-05-28 03:58:46',NULL),(2,'Bright Eyes Clinic','456 Oak Avenue, Springfield, IL 62704','+1 (555) 987-6543','contact@brighteyes.org','http://www.brighteyes.org','America/Chicago',1,'2025-05-28 03:58:49','2025-05-28 03:58:49',NULL),(3,'Elite Eye Care','789 Pine Lane, Unit 5, Metropolis, NY 10001','+1 (555) 222-3333','admin@eliteeyecare.net','http://www.eliteeyecare.net','America/New_York',1,'2025-05-28 03:58:51','2025-05-28 03:58:51',NULL),(4,'Horizon Optometry','101 Bay Street, Miami, FL 33101','+1 (555) 777-8888','support@horizonop.com','http://www.horizonop.com','America/New_York',0,'2025-05-28 03:58:53','2025-05-28 03:58:53',NULL),(5,'The Eye Institute','202 Lake Road, Boston, MA 02110',NULL,'info@eyeinstitute.com','http://www.eyeinstitute.com','America/New_York',1,'2025-05-28 03:58:54','2025-05-28 03:58:54',NULL),(6,'Visionary Solutions','303 Riverfront Drive, Denver, CO 80202','+1 (555) 444-5555',NULL,'http://www.visionarysol.com','America/Denver',1,'2025-05-28 03:58:56','2025-05-28 03:58:56',NULL),(7,'Perfect Sight Clinic','404 Hilltop View, Seattle, WA 98101','+1 (555) 666-9999','reception@perfectsight.com',NULL,'America/Los_Angeles',1,'2025-05-28 03:58:58','2025-05-28 03:58:58',NULL);
 /*!40000 ALTER TABLE `clinics` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1431,6 +1432,7 @@ CREATE TABLE `roles` (
   `description` text,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -1442,7 +1444,7 @@ CREATE TABLE `roles` (
 
 LOCK TABLES `roles` WRITE;
 /*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (1,'SuperAdministrador','Administrador general del sistema con acceso total','2025-04-14 14:57:45','2025-04-14 14:57:45'),(2,'AdministradorClinica','Administrador responsable de gestionar una clínica específica','2025-04-14 14:57:45','2025-04-14 14:57:45'),(3,'Doctor','Médico oftalmólogo que provee atención clínica','2025-04-14 14:57:45','2025-04-14 14:57:45'),(4,'Tecnico','Personal técnico que asiste en exámenes y procedimientos','2025-04-14 14:57:45','2025-04-14 14:57:45'),(5,'Recepcionista','Personal encargado de la recepción, citas y atención inicial','2025-04-14 14:57:45','2025-04-14 14:57:45'),(6,'PersonalFacturacion','Personal encargado de la facturación y cobros','2025-04-14 14:57:45','2025-04-14 14:57:45'),(7,'Paciente','Rol para futuro acceso de pacientes al portal','2025-04-14 14:57:45','2025-04-14 14:57:45');
+INSERT INTO `roles` VALUES (1,'SuperAdministrador','Administrador general del sistema con acceso total','2025-04-14 14:57:45','2025-04-14 14:57:45',1),(2,'AdministradorClinica','Administrador responsable de gestionar una clínica específica','2025-04-14 14:57:45','2025-04-14 14:57:45',1),(3,'Doctor','Médico oftalmólogo que provee atención clínica','2025-04-14 14:57:45','2025-04-14 14:57:45',1),(4,'Tecnico','Personal técnico que asiste en exámenes y procedimientos','2025-04-14 14:57:45','2025-04-14 14:57:45',1),(5,'Recepcionista','Personal encargado de la recepción, citas y atención inicial','2025-04-14 14:57:45','2025-04-14 14:57:45',1),(6,'PersonalFacturacion','Personal encargado de la facturación y cobros','2025-04-14 14:57:45','2025-04-14 14:57:45',1),(7,'Paciente','Rol para futuro acceso de pacientes al portal','2025-04-14 14:57:45','2025-04-14 14:57:45',1);
 /*!40000 ALTER TABLE `roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1700,7 +1702,7 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
-  `password_hash` varchar(255) NOT NULL,
+  `hashed_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `email` varchar(100) NOT NULL,
   `first_name` varchar(100) NOT NULL,
   `last_name` varchar(100) NOT NULL,
@@ -1712,6 +1714,9 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
+  `full_name` varchar(100) DEFAULT NULL,
+  `last_login` timestamp NULL DEFAULT NULL,
+  `profile_picture_url` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
@@ -1719,7 +1724,7 @@ CREATE TABLE `users` (
   KEY `associated_clinic_id` (`associated_clinic_id`),
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
   CONSTRAINT `users_ibfk_2` FOREIGN KEY (`associated_clinic_id`) REFERENCES `clinics` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1728,7 +1733,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'root','$2b$12$rxB0KfeJyoLwrNfWEc/6ruN1MZKkpmAx3Ak90C4ya12YQv1Z8L8PO','root@example.com','root','admin','5555441213',1,NULL,1,NULL,'2025-05-26 23:44:33','2025-05-26 23:44:33',NULL);
+INSERT INTO `users` VALUES (3,'admin_user','$2b$12$zl6ULKhCE8n5rQELu6GXceyZuQJpUPbV/4Vetd7LNIL0jUCDGV2oi','admin@oftalmoclinica.com','Juanito','Pérez','+1234567890',1,1,1,NULL,'2025-05-28 04:19:05','2025-05-29 03:34:34',NULL,'Juanito Pérez',NULL,'http://example.com/profile/admin.jpg'),(4,'admin_clinica_central','$2b$12$xSnutz.S1Fk1Pgv9Hux8xO1O9QZlqCxd6InieNxedKln4q1KGy/de','admin.central@example.com','Carlos','Pérez','600000002',2,1,1,NULL,'2025-05-30 03:40:38','2025-05-30 03:40:38',NULL,'Carlos Pérez',NULL,NULL),(5,'tec.juan_martinez','$2b$12$Ka/uIvc1Xz/haxPWki8f1.dDy4yH3Uzw6D54MnhT0IJYdXfelwSnu','juan.martinez.tec@example.com','Juan','Martínez','600000004',4,1,1,NULL,'2025-05-30 03:44:51','2025-05-30 03:44:51',NULL,'Juan Martínez',NULL,NULL),(6,'recep.maria_garcia','$2b$12$1cclcDPLIrpC2BPC2Xy/yuOgUjcrCFfwc97kw0b6DWM2LtoUDCN9O','maria.garcia.recep@example.com','Maria','García','600000005',5,1,1,NULL,'2025-05-30 03:45:09','2025-05-30 03:45:09',NULL,'Maria García',NULL,NULL),(7,'fact.luis_rodriguez','$2b$12$ngkhB..aWS1uYSGdIA9vjuIXma9dd7ATwV5YzvJE7Fh3Dm7YKanOK','luis.rodriguez.fact@example.com','Luis','Rodríguez','600000006',6,1,1,NULL,'2025-05-30 03:45:38','2025-05-30 03:45:38',NULL,'Luis Rodríguez',NULL,NULL),(8,'paciente.sofia_fernandez','$2b$12$ZZl3eEZ97SeHASDvPi/XDegOnfFDC4GJDpWWFveOZzLF3sMWayCia','sofia.fernandez@example.com','Sofia','Fernández','600000007',7,1,1,NULL,'2025-05-30 03:45:52','2025-05-30 03:45:52',NULL,'Sofia Fernández',NULL,NULL),(9,'paciente.pedro_gomez','$2b$12$YivEkFvbyrcpQrZKYuK1/.Xf.8/0rv8JtJu95U9mZrQx7Ui.E2rLi','pedro.gomez@example.com','Pedro','Gómez','600000008',7,1,1,NULL,'2025-05-30 03:46:06','2025-05-30 03:46:06',NULL,'Pedro Gómez',NULL,NULL),(10,'paciente.laura_sanchez','$2b$12$pdEV8F5ob7CPQTTGQiF2ZeXYZ2DrjT.oSDw1agZcoCcBAw/tUvska','laura.sanchez@example.com','Laura','Sánchez','600000009',7,1,1,NULL,'2025-05-30 03:46:16','2025-05-30 03:46:16',NULL,'Laura Sánchez',NULL,NULL),(12,'dr.miguel_romero','$2b$12$m199jFqmQRn8ER9cTrjxm.Oqb8I5DtEZRMh5F8PKHFoQzabyzPKAy','miguel.romero.doc@example.com','Miguel','Romero','600000010',3,1,1,NULL,'2025-05-30 03:51:00','2025-05-30 03:51:00',NULL,'Miguel Romero',NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1878,4 +1883,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-26 20:47:38
+-- Dump completed on 2025-06-03 22:45:24

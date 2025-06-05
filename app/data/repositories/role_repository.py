@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.domain import models
+from app.domain.models import Role
 from app.domain import schemas
 
 class RoleRepository:
@@ -7,16 +7,16 @@ class RoleRepository:
         self.db = db
 
     def get_role_by_id(self, role_id: int):
-        return self.db.query(models.Role).filter(models.Role.id == role_id).first()
+        return self.db.query(Role).filter(Role.id == role_id).first()
 
     def get_role_by_name(self, name: str):
-        return self.db.query(models.Role).filter(models.Role.name == name).first()
+        return self.db.query(Role).filter(Role.name == name).first()
 
     def get_roles(self, skip: int = 0, limit: int = 100):
-        return self.db.query(models.Role).offset(skip).limit(limit).all()
+        return self.db.query(Role).offset(skip).limit(limit).all()
 
     def create_role(self, role: schemas.RoleCreate):
-        db_role = models.Role(name=role.name, description=role.description)
+        db_role = Role(name=role.name, description=role.description)
         self.db.add(db_role)
         self.db.commit()
         self.db.refresh(db_role)
