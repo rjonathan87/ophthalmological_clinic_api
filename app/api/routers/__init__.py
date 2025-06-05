@@ -6,6 +6,7 @@ from .appointment_service import router as appointment_service_router
 from .audit_log import router as audit_log_router
 from .clinical_protocol import router as clinical_protocol_router
 from .clinical_study import router as clinical_study_router
+from .roles import router as roles_router
 
 # Exportar los routers para que main.py pueda importarlos fácilmente
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "audit_log_router",
     "clinical_protocol_router",
     "clinical_study_router",
+    "roles_router"
 ]

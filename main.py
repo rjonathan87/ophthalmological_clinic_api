@@ -19,6 +19,7 @@ app.include_router(routers.appointment_service_router, prefix="/api/v1/appointme
 app.include_router(routers.audit_log_router, prefix="/api/v1/audit-logs", tags=["Audit Logs"])
 app.include_router(routers.clinical_protocol_router, prefix="/api/v1/clinical-protocols", tags=["Clinical Protocols"])
 app.include_router(routers.clinical_study_router, prefix="/api/v1/clinical-studies", tags=["Clinical Studies"])
+app.include_router(routers.roles_router, prefix="/api/v1/roles", tags=["Roles"])
 
 @app.get("/")
 def read_root():
