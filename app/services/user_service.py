@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
-from app.domain import schemas, models
+from app.domain import schemas
 from app.data.repositories.user_repository import UserRepository, get_password_hash
 from app.data.repositories.role_repository import RoleRepository
 from fastapi import HTTPException, status
+
+from app.domain.models import User
 
 class UserService:
     def __init__(self, db: Session):
@@ -33,7 +35,7 @@ class UserService:
 
         return self.user_repo.create_user(user_create)
 
-    def get_all_users(self, current_user: models.User, skip: int = 0, limit: int = 100):
+    def get_all_users(self, current_user: User, skip: int = 0, limit: int = 100):
         # Si es SuperAdmin, no aplicar filtro de clínica
         if current_user.role.name == "SuperAdministrador":
             return self.user_repo.get_users(skip=skip, limit=limit)

@@ -6,7 +6,8 @@ from app.domain import schemas
 from app.data.repositories.user_repository import UserRepository, verify_password
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
-from app.domain import models
+
+from app.domain.models import Role, RolePermission
 
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 SECRET_KEY = settings.SECRET_KEY
@@ -63,8 +64,8 @@ def get_current_user_from_token(db: Session, token: str):
         .filter(user.__class__.id == user.id)\
         .options(
             joinedload(user.__class__.role)
-            .subqueryload(models.Role.role_permissions)
-            .joinedload(models.RolePermission.permission)
+            .subqueryload(Role.role_permissions)
+            .joinedload(RolePermission.permission)
         )\
         .first()
     
