@@ -569,3 +569,52 @@ class RefractionExamResponse(RefractionExamInDB):
     consultation: Optional[ConsultationInDB] = None
     created_by_user: Optional[UserInDB] = None
     updated_by_user: Optional[UserInDB] = None
+
+# Schemas para VisualAcuityExam
+class VisualAcuityExamBase(BaseModel):
+    consultation_id: int
+    exam_date: Optional[datetime] = None
+    uncorrected_va_od: Optional[str] = None
+    uncorrected_va_os: Optional[str] = None
+    current_correction_va_od: Optional[str] = None
+    current_correction_va_os: Optional[str] = None
+    new_correction_va_od: Optional[str] = None
+    new_correction_va_os: Optional[str] = None
+    test_method: Optional[str] = None
+    test_distance: Optional[float] = None
+    lighting_conditions: Optional[str] = None
+    notes: Optional[str] = None
+    exam_data: Optional[dict] = None
+
+class VisualAcuityExamCreate(VisualAcuityExamBase):
+    pass
+
+class VisualAcuityExamUpdate(BaseModel):
+    exam_date: Optional[datetime] = None
+    uncorrected_va_od: Optional[str] = None
+    uncorrected_va_os: Optional[str] = None
+    current_correction_va_od: Optional[str] = None
+    current_correction_va_os: Optional[str] = None
+    new_correction_va_od: Optional[str] = None
+    new_correction_va_os: Optional[str] = None
+    test_method: Optional[str] = None
+    test_distance: Optional[float] = None
+    lighting_conditions: Optional[str] = None
+    notes: Optional[str] = None
+    exam_data: Optional[dict] = None
+
+class VisualAcuityExamInDB(VisualAcuityExamBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class VisualAcuityExamResponse(VisualAcuityExamInDB):
+    consultation: Optional[ConsultationInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None
