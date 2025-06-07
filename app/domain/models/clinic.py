@@ -28,3 +28,4 @@ class Clinic(Base):
     audit_logs = relationship("AuditLog", back_populates="clinic")
     clinical_studies = relationship("ClinicalStudy", back_populates="clinic")
     resources = relationship("Resource", back_populates="clinic", cascade="all, delete-orphan")
+    consultations = relationship("Consultation", back_populates="clinic")  # Nueva relación

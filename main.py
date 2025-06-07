@@ -26,6 +26,11 @@ app.include_router(routers.role_permission_router, prefix="/api/v1/role-permissi
 app.include_router(routers.resource_router, prefix="/api/v1/resources", tags=["Resources"])
 app.include_router(routers.patient_router, prefix="/api/v1/patients", tags=["Patients"])
 app.include_router(routers.service_router, prefix="/api/v1/services", tags=["Services"])
+app.include_router(
+    routers.consultation_router,
+    prefix="/api/v1/consultations",
+    tags=["Consultations"]
+)
 
 @app.get("/")
 def read_root():

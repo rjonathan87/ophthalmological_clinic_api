@@ -25,6 +25,7 @@ class User(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     deleted_at = Column(DateTime)
 
+    # Relaciones
     role = relationship("Role", back_populates="users")
     clinic = relationship("Clinic", back_populates="users")
     created_appointments = relationship("Appointment", foreign_keys="Appointment.created_by_user_id", back_populates="created_by_user")
@@ -35,6 +36,9 @@ class User(Base):
     patient_user = relationship("Patient", foreign_keys="[Patient.user_id]", back_populates="user_account")
     created_services = relationship("Service", foreign_keys="[Service.created_by_user_id]", back_populates="created_by_user")
     updated_services = relationship("Service", foreign_keys="[Service.updated_by_user_id]", back_populates="updated_by_user")
+    doctor_consultations = relationship("Consultation", foreign_keys="[Consultation.doctor_id]", back_populates="doctor")  # Nueva relación
+    created_consultations = relationship("Consultation", foreign_keys="[Consultation.created_by_user_id]", back_populates="created_by_user")  # Nueva relación
+    updated_consultations = relationship("Consultation", foreign_keys="[Consultation.updated_by_user_id]", back_populates="updated_by_user")  # Nueva relación
 
     @property
     def full_name(self):

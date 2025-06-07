@@ -39,6 +39,7 @@ class Patient(Base):
     updated_by_user = relationship("User", foreign_keys=[updated_by_user_id], back_populates="updated_patients")
     user_account = relationship("User", foreign_keys=[user_id], back_populates="patient_user")
     appointments = relationship("Appointment", back_populates="patient")
+    consultations = relationship("Consultation", back_populates="patient")  # Nueva relación
 
     @property
     def full_name(self):
