@@ -3,6 +3,7 @@ from app.api import routers
 from app.api.routers import (
     refractionexam_router,
     visualacuityexam_router,
+    iopexam_router,
 )
 
 from app.core.config import settings
@@ -59,6 +60,11 @@ app.include_router(
     visualacuityexam_router,
     prefix="/api/v1/visual-acuity-exams",
     tags=["VisualAcuityExams"]
+)
+app.include_router(
+    iopexam_router,
+    prefix="/api/v1/iopexams",
+    tags=["IOP Exams"]
 )
 
 @app.get("/")
