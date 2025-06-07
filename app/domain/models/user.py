@@ -33,8 +33,6 @@ class User(Base):
     created_patients = relationship("Patient", foreign_keys="[Patient.created_by_user_id]", back_populates="created_by_user")
     updated_patients = relationship("Patient", foreign_keys="[Patient.updated_by_user_id]", back_populates="updated_by_user")
     patient_user = relationship("Patient", foreign_keys="[Patient.user_id]", back_populates="user_account")
-    created_resources = relationship("Resource", foreign_keys="[Resource.created_by_user_id]", back_populates="created_by_user")
-    updated_resources = relationship("Resource", foreign_keys="[Resource.updated_by_user_id]", back_populates="updated_by_user")
     created_services = relationship("Service", foreign_keys="[Service.created_by_user_id]", back_populates="created_by_user")
     updated_services = relationship("Service", foreign_keys="[Service.updated_by_user_id]", back_populates="updated_by_user")
 

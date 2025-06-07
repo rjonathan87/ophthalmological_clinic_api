@@ -7,6 +7,11 @@ from .audit_log import router as audit_log_router
 from .clinical_protocol import router as clinical_protocol_router
 from .clinical_study import router as clinical_study_router
 from .roles import router as roles_router
+from .permission import router as permission_router
+from .educational_resources import router as educational_resources_router
+from .role_permission import router as role_permission_router
+from .resource import router as resource_router
+from .patient import router as patient_router
 
 # Exportar los routers para que main.py pueda importarlos fácilmente
 __all__ = [
@@ -18,5 +23,10 @@ __all__ = [
     "audit_log_router",
     "clinical_protocol_router",
     "clinical_study_router",
-    "roles_router"
+    "roles_router",
+    "permission_router",
+    "educational_resources_router",
+    "role_permission_router",
+    "resource_router",
+    "patient_router"
 ]

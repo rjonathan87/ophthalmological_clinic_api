@@ -20,6 +20,11 @@ app.include_router(routers.audit_log_router, prefix="/api/v1/audit-logs", tags=[
 app.include_router(routers.clinical_protocol_router, prefix="/api/v1/clinical-protocols", tags=["Clinical Protocols"])
 app.include_router(routers.clinical_study_router, prefix="/api/v1/clinical-studies", tags=["Clinical Studies"])
 app.include_router(routers.roles_router, prefix="/api/v1/roles", tags=["Roles"])
+app.include_router(routers.permission_router, prefix="/api/v1/permissions", tags=["Permissions"])
+app.include_router(routers.educational_resources_router, prefix="/api/v1/educational-resources", tags=["Educational Resources"])
+app.include_router(routers.role_permission_router, prefix="/api/v1/role-permissions", tags=["Role Permissions"])
+app.include_router(routers.resource_router, prefix="/api/v1/resources", tags=["Resources"])
+app.include_router(routers.patient_router, prefix="/api/v1/patients", tags=["Patients"])
 
 @app.get("/")
 def read_root():

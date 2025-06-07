@@ -1,25 +1,34 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum, Text
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
-from sqlalchemy.dialects.mysql import JSON
-from typing import List, Optional
 
 class Resource(Base):
     __tablename__ = "resources"
-
+    
     id = Column(Integer, primary_key=True, index=True)
-    clinic_id = Column(Integer, ForeignKey("clinics.id"), nullable=False)
+    clinic_id = Column(Integer, ForeignKey("clinics.id", ondelete="CASCADE"), nullable=False)
     name = Column(String(100), nullable=False)
-    description = Column(Text)
-    resource_type = Column(String(50), nullable=False)
-    is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=func.now(), nullable=False)
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
-    created_by_user_id = Column(Integer, ForeignKey("users.id"))
-    updated_by_user_id = Column(Integer, ForeignKey("users.id"))
+    resource_type = Column(Enum("Room", "Equipment", name="resource_type"), nullable=False)
+    location = Column(String(100))
+    is_schedulable = Column(Boolean, nullable=False, default=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, onupdate=func.now())
+    created_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"))
+    updated_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"))
     deleted_at = Column(DateTime)
 
+    # Relaciones
     clinic = relationship("Clinic", back_populates="resources")
-    created_by_user = relationship("User", foreign_keys=[created_by_user_id], back_populates="created_resources")
-    updated_by_user = relationship("User", foreign_keys=[updated_by_user_id], back_populates="updated_resources")
+    created_by = relationship(
+        "User", 
+        foreign_keys=[created_by_user_id],
+        backref="created_resources"
+    )
+    updated_by = relationship(
+        "User", 
+        foreign_keys=[updated_by_user_id],
+        backref="updated_resources"
+    )
+    appointments = relationship("Appointment", back_populates="resource")
