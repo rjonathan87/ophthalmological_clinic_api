@@ -42,6 +42,8 @@ class User(Base):
     prescribed_prescriptions = relationship("Prescription", foreign_keys="[Prescription.prescribed_by_id]", back_populates="prescribed_by")
     created_prescriptions = relationship("Prescription", foreign_keys="[Prescription.created_by_user_id]", back_populates="created_by_user")
     updated_prescriptions = relationship("Prescription", foreign_keys="[Prescription.updated_by_user_id]", back_populates="updated_by_user")
+    created_refractionexams = relationship("RefractionExam", foreign_keys="[RefractionExam.created_by_user_id]", back_populates="created_by_user")
+    updated_refractionexams = relationship("RefractionExam", foreign_keys="[RefractionExam.updated_by_user_id]", back_populates="updated_by_user")
 
     @property
     def full_name(self):

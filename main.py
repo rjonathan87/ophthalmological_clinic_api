@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api import routers
+from app.api.routers import refractionexam_router
 from app.core.config import settings
 
 app = FastAPI(
@@ -44,6 +45,11 @@ app.include_router(
     routers.prescriptions_router,
     prefix="/api/v1/prescriptions",
     tags=["Prescriptions"]
+)
+app.include_router(
+    refractionexam_router,
+    prefix="/api/v1/refractionexams",
+    tags=["RefractionExams"]
 )
 
 @app.get("/")

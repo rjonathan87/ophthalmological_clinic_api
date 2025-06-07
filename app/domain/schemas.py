@@ -518,3 +518,54 @@ class PrescriptionResponse(PrescriptionInDB):
     prescribed_by: Optional[UserInDB] = None
     created_by_user: Optional[UserInDB] = None
     updated_by_user: Optional[UserInDB] = None
+
+# Schemas para RefractionExam
+class RefractionExamBase(BaseModel):
+    consultation_id: int
+    exam_date: Optional[datetime] = None
+    sphere_od: Optional[float] = None
+    cylinder_od: Optional[float] = None
+    axis_od: Optional[int] = None
+    va_od: Optional[str] = None
+    sphere_os: Optional[float] = None
+    cylinder_os: Optional[float] = None
+    axis_os: Optional[int] = None
+    va_os: Optional[str] = None
+    addition: Optional[float] = None
+    ipd: Optional[float] = None
+    notes: Optional[str] = None
+    exam_data: Optional[dict] = None
+
+class RefractionExamCreate(RefractionExamBase):
+    pass
+
+class RefractionExamUpdate(BaseModel):
+    exam_date: Optional[datetime] = None
+    sphere_od: Optional[float] = None
+    cylinder_od: Optional[float] = None
+    axis_od: Optional[int] = None
+    va_od: Optional[str] = None
+    sphere_os: Optional[float] = None
+    cylinder_os: Optional[float] = None
+    axis_os: Optional[int] = None
+    va_os: Optional[str] = None
+    addition: Optional[float] = None
+    ipd: Optional[float] = None
+    notes: Optional[str] = None
+    exam_data: Optional[dict] = None
+
+class RefractionExamInDB(RefractionExamBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class RefractionExamResponse(RefractionExamInDB):
+    consultation: Optional[ConsultationInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None

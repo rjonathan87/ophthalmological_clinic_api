@@ -15,6 +15,7 @@ from .patient import router as patient_router
 from .service import router as service_router
 from .consultations import router as consultation_router
 from .prescriptions import router as prescriptions_router
+from .refractionexam import router as refractionexam_router
 
 # Exportar los routers para que main.py pueda importarlos fácilmente
 __all__ = [
@@ -34,5 +35,6 @@ __all__ = [
     "patient_router",
     "service_router",
     "consultation_router",
-    "prescriptions_router"
+    "prescriptions_router",
+    "refractionexam_router"
 ]
