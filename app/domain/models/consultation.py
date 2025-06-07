@@ -32,3 +32,4 @@ class Consultation(Base):
     doctor = relationship("User", foreign_keys=[doctor_id], back_populates="doctor_consultations")
     created_by_user = relationship("User", foreign_keys=[created_by_user_id], back_populates="created_consultations")
     updated_by_user = relationship("User", foreign_keys=[updated_by_user_id], back_populates="updated_consultations")
+    prescriptions = relationship("Prescription", back_populates="consultation", cascade="all, delete-orphan")

@@ -36,9 +36,12 @@ class User(Base):
     patient_user = relationship("Patient", foreign_keys="[Patient.user_id]", back_populates="user_account")
     created_services = relationship("Service", foreign_keys="[Service.created_by_user_id]", back_populates="created_by_user")
     updated_services = relationship("Service", foreign_keys="[Service.updated_by_user_id]", back_populates="updated_by_user")
-    doctor_consultations = relationship("Consultation", foreign_keys="[Consultation.doctor_id]", back_populates="doctor")  # Nueva relación
-    created_consultations = relationship("Consultation", foreign_keys="[Consultation.created_by_user_id]", back_populates="created_by_user")  # Nueva relación
-    updated_consultations = relationship("Consultation", foreign_keys="[Consultation.updated_by_user_id]", back_populates="updated_by_user")  # Nueva relación
+    doctor_consultations = relationship("Consultation", foreign_keys="[Consultation.doctor_id]", back_populates="doctor")
+    created_consultations = relationship("Consultation", foreign_keys="[Consultation.created_by_user_id]", back_populates="created_by_user")
+    updated_consultations = relationship("Consultation", foreign_keys="[Consultation.updated_by_user_id]", back_populates="updated_by_user")
+    prescribed_prescriptions = relationship("Prescription", foreign_keys="[Prescription.prescribed_by_id]", back_populates="prescribed_by")
+    created_prescriptions = relationship("Prescription", foreign_keys="[Prescription.created_by_user_id]", back_populates="created_by_user")
+    updated_prescriptions = relationship("Prescription", foreign_keys="[Prescription.updated_by_user_id]", back_populates="updated_by_user")
 
     @property
     def full_name(self):
