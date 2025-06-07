@@ -6,6 +6,15 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.PROJECT_VERSION,
     description=settings.PROJECT_DESCRIPTION,
+    # Configuración de Swagger UI
+    swagger_ui_parameters={
+        "docExpansion": "none",  # Todas las secciones empiezan cerradas
+        "defaultModelsExpandDepth": -1,  # Oculta la sección de esquemas por defecto
+        "operationsSorter": "alpha",  # Ordena las operaciones alfabéticamente
+        "tagsSorter": "alpha",  # Ordena los tags alfabéticamente
+        "defaultModelExpandDepth": 2,  # Profundidad de expansión para los modelos
+        "showExtensions": True,  # Muestra extensiones x-*
+    }
 )
 
 # Incluir los routers de la API
