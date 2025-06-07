@@ -34,3 +34,4 @@ class Consultation(Base):
     updated_by_user = relationship("User", foreign_keys=[updated_by_user_id], back_populates="updated_consultations")
     prescriptions = relationship("Prescription", back_populates="consultation", cascade="all, delete-orphan")
     refractionexams = relationship("RefractionExam", back_populates="consultation", cascade="all, delete-orphan")
+    visualacuityexams = relationship("VisualAcuityExam", back_populates="consultation", cascade="all, delete-orphan")
