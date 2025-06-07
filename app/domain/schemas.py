@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field, HttpUrl
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, constr
 from typing import Optional, List
 from datetime import datetime
+from enum import Enum
 
 # Schemas para Roles
 class RoleBase(BaseModel):
@@ -81,13 +82,25 @@ class UserResponse(UserInDB):
     clinic: Optional[ClinicInDB] = None
 
 # Schemas para Pacientes
+class GenderEnum(str, Enum):
+    MALE = "Male"
+    FEMALE = "Female"
+    OTHER = "Other"
+    PREFER_NOT_TO_SAY = "PreferNotToSay"
+
+class CommunicationChannelEnum(str, Enum):
+    EMAIL = "Email"
+    SMS = "SMS"
+    PHONE = "Phone"
+    PORTAL = "Portal"
+
 class PatientBase(BaseModel):
     clinic_id: int
     patient_identifier: Optional[str] = None
     first_name: str
     last_name: str
     date_of_birth: datetime
-    gender: Optional[str] = Field(None, pattern="^(Male|Female|Other|PreferNotToSay)$")
+    gender: Optional[GenderEnum]
     address: Optional[str] = None
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -98,7 +111,7 @@ class PatientBase(BaseModel):
     insurance_policy_number: Optional[str] = None
     medical_history_summary: Optional[str] = None
     allergies: Optional[str] = None
-    preferred_communication_channel: Optional[str] = Field(None, pattern="^(Email|SMS|Phone|Portal)$")
+    preferred_communication_channel: Optional[CommunicationChannelEnum]
     gdpr_consent: bool = False
     user_id: Optional[int] = None
 
@@ -127,6 +140,10 @@ class PatientResponse(PatientInDB):
     user_account: Optional[UserInDB] = None
 
 # Schemas para Recursos
+class ResourceType(str, Enum):
+    ROOM = "Room"
+    EQUIPMENT = "Equipment"
+
 class ResourceBase(BaseModel):
     clinic_id: int
     name: str
@@ -358,3 +375,63 @@ class ClinicalStudyInDB(ClinicalStudyBase):
 
     class Config:
         from_attributes = True
+
+# Schemas para Permissions
+class PermissionBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+
+class PermissionCreate(PermissionBase):
+    pass
+
+class PermissionUpdate(PermissionBase):
+    pass
+
+class PermissionInDB(PermissionBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# Schemas para EducationalResources
+class EducationalResourceBase(BaseModel):
+    title: str
+    content_type: str
+    content_url: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+    language: Optional[str] = None
+
+class EducationalResourceCreate(EducationalResourceBase):
+    pass
+
+class EducationalResourceUpdate(EducationalResourceBase):
+    pass
+
+class EducationalResourceInDB(EducationalResourceBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# Schemas para RolePermissions (tabla de relación entre roles y permisos)
+class RolePermissionBase(BaseModel):
+    role_id: int
+    permission_id: int
+
+class RolePermissionCreate(RolePermissionBase):
+    pass
+
+class RolePermissionUpdate(RolePermissionBase):
+    pass
+
+class RolePermissionInDB(RolePermissionBase):
+    class Config:
+        from_attributes = True
+
+# Schemas para Resource

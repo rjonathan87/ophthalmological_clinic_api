@@ -18,6 +18,7 @@ class Appointment(Base):
     created_by_user_id = Column(Integer, ForeignKey("users.id"))
     updated_by_user_id = Column(Integer, ForeignKey("users.id"))
     primary_doctor_id = Column(Integer, ForeignKey("users.id"))
+    resource_id = Column(Integer, ForeignKey("resources.id", ondelete="SET NULL"))
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     deleted_at = Column(DateTime)
@@ -29,3 +30,4 @@ class Appointment(Base):
     created_by_user = relationship("User", foreign_keys=[created_by_user_id], back_populates="created_appointments")
     updated_by_user = relationship("User", foreign_keys=[updated_by_user_id], back_populates="updated_appointments")
     appointment_services = relationship("AppointmentService", back_populates="appointment")
+    resource = relationship("Resource", back_populates="appointments")

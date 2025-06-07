@@ -7,7 +7,7 @@ from app.services.role_service import RoleService
 from app.api.dependencies import get_current_user, require_permission
 
 router = APIRouter(
-    prefix="/roles",
+    # prefix="/roles",
     tags=["Roles"]
 )
 
