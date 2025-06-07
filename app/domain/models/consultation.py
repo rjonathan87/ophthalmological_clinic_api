@@ -35,3 +35,4 @@ class Consultation(Base):
     prescriptions = relationship("Prescription", back_populates="consultation", cascade="all, delete-orphan")
     refractionexams = relationship("RefractionExam", back_populates="consultation", cascade="all, delete-orphan")
     visualacuityexams = relationship("VisualAcuityExam", back_populates="consultation", cascade="all, delete-orphan")
+    iopexams = relationship("IOPExam", back_populates="consultation", cascade="all, delete-orphan")

@@ -46,6 +46,8 @@ class User(Base):
     updated_refractionexams = relationship("RefractionExam", foreign_keys="[RefractionExam.updated_by_user_id]", back_populates="updated_by_user")
     created_visualacuityexams = relationship("VisualAcuityExam", foreign_keys="[VisualAcuityExam.created_by_user_id]", back_populates="created_by_user")
     updated_visualacuityexams = relationship("VisualAcuityExam", foreign_keys="[VisualAcuityExam.updated_by_user_id]", back_populates="updated_by_user")
+    created_iopexams = relationship("IOPExam", foreign_keys="[IOPExam.created_by_user_id]", back_populates="created_by_user")
+    updated_iopexams = relationship("IOPExam", foreign_keys="[IOPExam.updated_by_user_id]", back_populates="updated_by_user")
 
     @property
     def full_name(self):

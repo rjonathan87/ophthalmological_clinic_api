@@ -618,3 +618,44 @@ class VisualAcuityExamResponse(VisualAcuityExamInDB):
     consultation: Optional[ConsultationInDB] = None
     created_by_user: Optional[UserInDB] = None
     updated_by_user: Optional[UserInDB] = None
+
+# Schemas para IOPExam
+class IOPExamBase(BaseModel):
+    consultation_id: int
+    exam_date: Optional[datetime] = None
+    pressure_od: Optional[float] = None
+    pressure_os: Optional[float] = None
+    measurement_method: Optional[str] = None
+    time_of_day: Optional[str] = None
+    medication_used: Optional[str] = None
+    notes: Optional[str] = None
+    exam_data: Optional[dict] = None
+
+class IOPExamCreate(IOPExamBase):
+    pass
+
+class IOPExamUpdate(BaseModel):
+    exam_date: Optional[datetime] = None
+    pressure_od: Optional[float] = None
+    pressure_os: Optional[float] = None
+    measurement_method: Optional[str] = None
+    time_of_day: Optional[str] = None
+    medication_used: Optional[str] = None
+    notes: Optional[str] = None
+    exam_data: Optional[dict] = None
+
+class IOPExamInDB(IOPExamBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class IOPExamResponse(IOPExamInDB):
+    consultation: Optional[ConsultationInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None
