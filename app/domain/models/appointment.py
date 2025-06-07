@@ -31,3 +31,4 @@ class Appointment(Base):
     updated_by_user = relationship("User", foreign_keys=[updated_by_user_id], back_populates="updated_appointments")
     appointment_services = relationship("AppointmentService", back_populates="appointment")
     resource = relationship("Resource", back_populates="appointments")
+    consultations = relationship("Consultation", back_populates="appointment")  # Nueva relación

@@ -434,4 +434,48 @@ class RolePermissionInDB(RolePermissionBase):
     class Config:
         from_attributes = True
 
-# Schemas para Resource
+# Schemas para Consultations
+class ConsultationBase(BaseModel):
+    appointment_id: int
+    patient_id: int
+    clinic_id: int
+    doctor_id: int
+    consultation_date: datetime
+    chief_complaint: str
+    notes: Optional[str] = None
+    consultation_type: Optional[str] = None
+    diagnosis: Optional[str] = None
+    treatment_plan: Optional[str] = None
+    follow_up_date: Optional[datetime] = None
+    consultation_status: str = Field('Completed', pattern="^(InProgress|Completed|Cancelled)$")
+
+class ConsultationCreate(ConsultationBase):
+    pass
+
+class ConsultationUpdate(BaseModel):
+    chief_complaint: Optional[str] = None
+    notes: Optional[str] = None
+    consultation_type: Optional[str] = None
+    diagnosis: Optional[str] = None
+    treatment_plan: Optional[str] = None
+    follow_up_date: Optional[datetime] = None
+    consultation_status: Optional[str] = Field(None, pattern="^(InProgress|Completed|Cancelled)$")
+
+class ConsultationInDB(ConsultationBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class ConsultationResponse(ConsultationInDB):
+    appointment: Optional[AppointmentInDB] = None
+    patient: Optional[PatientInDB] = None
+    clinic: Optional[ClinicInDB] = None
+    doctor: Optional[UserInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None
