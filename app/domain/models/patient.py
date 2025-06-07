@@ -34,12 +34,14 @@ class Patient(Base):
     deleted_at = Column(DateTime)
     user_id = Column(Integer, ForeignKey("users.id"))
 
+    # Relationships
     clinic = relationship("Clinic", back_populates="patients")
     created_by_user = relationship("User", foreign_keys=[created_by_user_id], back_populates="created_patients")
     updated_by_user = relationship("User", foreign_keys=[updated_by_user_id], back_populates="updated_patients")
     user_account = relationship("User", foreign_keys=[user_id], back_populates="patient_user")
     appointments = relationship("Appointment", back_populates="patient")
-    consultations = relationship("Consultation", back_populates="patient")  # Nueva relación
+    consultations = relationship("Consultation", back_populates="patient")
+    prescriptions = relationship("Prescription", back_populates="patient")
 
     @property
     def full_name(self):

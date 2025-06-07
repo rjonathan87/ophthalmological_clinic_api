@@ -479,3 +479,42 @@ class ConsultationResponse(ConsultationInDB):
     doctor: Optional[UserInDB] = None
     created_by_user: Optional[UserInDB] = None
     updated_by_user: Optional[UserInDB] = None
+
+# Schemas para Prescriptions
+class PrescriptionBase(BaseModel):
+    consultation_id: int
+    patient_id: int
+    prescribed_by_id: int
+    prescription_type: str = Field(..., pattern="^(Medication|Optical|Contact Lens)$")
+    prescription_details: dict
+    instructions: Optional[str] = None
+    expiration_date: Optional[datetime] = None
+    is_active: bool = True
+
+class PrescriptionCreate(PrescriptionBase):
+    pass
+
+class PrescriptionUpdate(BaseModel):
+    prescription_details: Optional[dict] = None
+    instructions: Optional[str] = None
+    expiration_date: Optional[datetime] = None
+    is_active: Optional[bool] = None
+
+class PrescriptionInDB(PrescriptionBase):
+    id: int
+    prescription_date: datetime
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class PrescriptionResponse(PrescriptionInDB):
+    consultation: Optional[ConsultationInDB] = None
+    patient: Optional[PatientInDB] = None
+    prescribed_by: Optional[UserInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None

@@ -40,6 +40,11 @@ app.include_router(
     prefix="/api/v1/consultations",
     tags=["Consultations"]
 )
+app.include_router(
+    routers.prescriptions_router,
+    prefix="/api/v1/prescriptions",
+    tags=["Prescriptions"]
+)
 
 @app.get("/")
 def read_root():
