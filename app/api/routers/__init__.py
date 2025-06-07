@@ -12,6 +12,7 @@ from .educational_resources import router as educational_resources_router
 from .role_permission import router as role_permission_router
 from .resource import router as resource_router
 from .patient import router as patient_router
+from .service import router as service_router
 
 # Exportar los routers para que main.py pueda importarlos fácilmente
 __all__ = [
@@ -28,5 +29,6 @@ __all__ = [
     "educational_resources_router",
     "role_permission_router",
     "resource_router",
-    "patient_router"
+    "patient_router",
+    "service_router"
 ]
