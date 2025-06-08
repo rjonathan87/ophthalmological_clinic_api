@@ -4,6 +4,7 @@ from app.api.routers import (
     refractionexam_router,
     visualacuityexam_router,
     iopexam_router,
+    patientdocument_router,
 )
 
 from app.core.config import settings
@@ -66,6 +67,7 @@ app.include_router(
     prefix="/api/v1/iopexams",
     tags=["IOP Exams"]
 )
+app.include_router(routers.patientdocument_router, prefix="/api/v1/patient-documents", tags=["Patient Documents"])
 
 @app.get("/")
 def read_root():

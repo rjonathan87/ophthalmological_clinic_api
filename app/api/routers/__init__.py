@@ -18,6 +18,7 @@ from .prescriptions import router as prescriptions_router
 from .refractionexam import router as refractionexam_router
 from .visualacuityexam import router as visualacuityexam_router
 from .iopexam import router as iopexam_router
+from .patientdocument import router as patientdocument_router
 
 # Exportar los routers para que main.py pueda importarlos fácilmente
 __all__ = [
@@ -40,5 +41,6 @@ __all__ = [
     "prescriptions_router",
     "refractionexam_router",
     "visualacuityexam_router",
-    "iopexam_router"
+    "iopexam_router",
+    "patientdocument_router"
 ]

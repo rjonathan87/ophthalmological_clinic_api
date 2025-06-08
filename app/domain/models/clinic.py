@@ -22,10 +22,10 @@ class Clinic(Base):
     # Relaciones
     users = relationship("User", back_populates="clinic")
     patients = relationship("Patient", back_populates="clinic")
-    appointments = relationship("Appointment", back_populates="clinic")
-    resources = relationship("Resource", back_populates="clinic")
+    appointments = relationship("Appointment", back_populates="clinic")    
+    resources = relationship("Resource", back_populates="clinic", cascade="all, delete-orphan")
     services = relationship("Service", back_populates="clinic")
     audit_logs = relationship("AuditLog", back_populates="clinic")
+    patient_documents = relationship("PatientDocument", back_populates="clinic")
     clinical_studies = relationship("ClinicalStudy", back_populates="clinic")
-    resources = relationship("Resource", back_populates="clinic", cascade="all, delete-orphan")
-    consultations = relationship("Consultation", back_populates="clinic")  # Nueva relación
+    consultations = relationship("Consultation", back_populates="clinic")# Nueva relación

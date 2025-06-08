@@ -12,6 +12,7 @@ from .appointmentservice import AppointmentService
 from .patient import Patient
 from .user import User
 from .iopexam import IOPExam
+from .patientdocument import PatientDocument
 
 
 __all__ = [
@@ -28,5 +29,6 @@ __all__ = [
     "AppointmentService",
     "Patient",
     "User",
-    "IOPExam"
+    "IOPExam",
+    "PatientDocument"
 ]
