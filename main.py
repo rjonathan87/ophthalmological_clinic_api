@@ -5,6 +5,7 @@ from app.api.routers import (
     visualacuityexam_router,
     iopexam_router,
     patientdocument_router,
+    consentform_router,
 )
 
 from app.core.config import settings
@@ -27,8 +28,6 @@ app = FastAPI(
 # Incluir los routers de la API
 app.include_router(routers.auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(routers.users_router, prefix="/api/v1/users", tags=["Users"])
-# Aquí se incluirán más routers a medida que se desarrollen para cada módulo
-# app.include_router(routers.patients_router, prefix="/api/v1/patients", tags=["Patients"])
 app.include_router(routers.appointments_router, prefix="/api/v1/appointments", tags=["Appointments"])
 app.include_router(routers.clinic_router, prefix="/api/v1/clinics", tags=["Clinics"])
 app.include_router(routers.appointment_service_router, prefix="/api/v1/appointment-services", tags=["Appointment Services"])
@@ -67,7 +66,16 @@ app.include_router(
     prefix="/api/v1/iopexams",
     tags=["IOP Exams"]
 )
-app.include_router(routers.patientdocument_router, prefix="/api/v1/patient-documents", tags=["Patient Documents"])
+app.include_router(
+    routers.patientdocument_router,
+    prefix="/api/v1/patient-documents",
+    tags=["Patient Documents"]
+)
+app.include_router(
+    routers.consentform_router,
+    prefix="/api/v1/consent-forms",
+    tags=["Consent Forms"]
+)
 
 @app.get("/")
 def read_root():

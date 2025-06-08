@@ -703,3 +703,51 @@ class PatientDocumentResponse(PatientDocumentInDB):
     clinic: Optional[ClinicInDB] = None
     created_by_user: Optional[UserInDB] = None
     updated_by_user: Optional[UserInDB] = None
+
+# Schemas para ConsentForms
+class ConsentFormBase(BaseModel):
+    patient_id: int
+    clinic_id: int
+    consultation_id: int
+    appointment_id: int
+    form_type: str
+    title: str
+    content: str
+    signature_data: Optional[dict] = None
+    signed_date: Optional[datetime] = None
+    status: str = Field('Pending', pattern="^(Pending|Signed|Rejected|Expired)$")
+    is_active: bool = True
+    version: str
+    signed_by_user_id: Optional[int] = None
+
+class ConsentFormCreate(ConsentFormBase):
+    pass
+
+class ConsentFormUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    signature_data: Optional[dict] = None
+    signed_date: Optional[datetime] = None
+    status: Optional[str] = Field(None, pattern="^(Pending|Signed|Rejected|Expired)$")
+    is_active: Optional[bool] = None
+    signed_by_user_id: Optional[int] = None
+
+class ConsentFormInDB(ConsentFormBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class ConsentFormResponse(ConsentFormInDB):
+    patient: Optional[PatientInDB] = None
+    clinic: Optional[ClinicInDB] = None
+    consultation: Optional[ConsultationInDB] = None
+    appointment: Optional[AppointmentInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None
+    signed_by_user: Optional[UserInDB] = None

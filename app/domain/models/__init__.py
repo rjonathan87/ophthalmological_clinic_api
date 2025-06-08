@@ -1,7 +1,7 @@
 from .appointment import Appointment
 from .clinic import Clinic
 from .permission import Permission
-from .rolepermission import RolePermission
+from .rolepermission import RolePermission 
 from .role import Role
 from .auditlog import AuditLog
 from .clinicalprotocol import ClinicalProtocol
@@ -13,6 +13,7 @@ from .patient import Patient
 from .user import User
 from .iopexam import IOPExam
 from .patientdocument import PatientDocument
+from .consentform import ConsentForm
 
 
 __all__ = [
@@ -23,12 +24,13 @@ __all__ = [
     "Role",
     "AuditLog",
     "ClinicalProtocol",
-    "ClinicalStudy",
+    "ClinicalStudy", 
     "Resource",
     "Service",
     "AppointmentService",
     "Patient",
     "User",
     "IOPExam",
-    "PatientDocument"
+    "PatientDocument",
+    "ConsentForm"
 ]
