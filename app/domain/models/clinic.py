@@ -28,4 +28,5 @@ class Clinic(Base):
     audit_logs = relationship("AuditLog", back_populates="clinic")
     patient_documents = relationship("PatientDocument", back_populates="clinic")
     clinical_studies = relationship("ClinicalStudy", back_populates="clinic")
-    consultations = relationship("Consultation", back_populates="clinic")# Nueva relación
+    consultations = relationship("Consultation", back_populates="clinic")
+    consent_forms = relationship("ConsentForm", back_populates="clinic")
