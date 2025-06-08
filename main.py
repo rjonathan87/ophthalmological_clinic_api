@@ -6,6 +6,7 @@ from app.api.routers import (
     iopexam_router,
     patientdocument_router,
     consentform_router,
+    invoice_router,
 )
 
 from app.core.config import settings
@@ -75,6 +76,11 @@ app.include_router(
     routers.consentform_router,
     prefix="/api/v1/consent-forms",
     tags=["Consent Forms"]
+)
+app.include_router(
+    routers.invoice_router,
+    prefix="/api/v1/invoices",
+    tags=["Invoices"]
 )
 
 @app.get("/")
