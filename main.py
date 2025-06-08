@@ -9,7 +9,8 @@ from app.api.routers import (
     invoice_router,
     invoiceitem_router,
     payment_router,
-    patient_education_tracking_router
+    patient_education_tracking_router,
+    performance_metrics_router
 )
 
 from app.core.config import settings
@@ -99,6 +100,11 @@ app.include_router(
     routers.payment_router,
     prefix="/api/v1/payments",
     tags=["Payments"]
+)
+app.include_router(
+    performance_metrics_router,
+    prefix="/api/v1/performance-metrics",
+    tags=["Performance Metrics"]
 )
 
 @app.get("/")
