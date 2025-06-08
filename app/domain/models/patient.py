@@ -46,6 +46,7 @@ class Patient(Base):
     consent_forms = relationship("ConsentForm", back_populates="patient")
     invoices = relationship("Invoice", back_populates="patient")
     payments = relationship("Payment", back_populates="patient")
+    education_trackings = relationship("PatientEducationTracking", back_populates="patient")
 
     @property
     def full_name(self):

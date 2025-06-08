@@ -57,6 +57,8 @@ class User(Base):
     created_consent_forms = relationship("ConsentForm", foreign_keys="[ConsentForm.created_by_user_id]", back_populates="created_by_user")
     updated_consent_forms = relationship("ConsentForm", foreign_keys="[ConsentForm.updated_by_user_id]", back_populates="updated_by_user")
     signed_consent_forms = relationship("ConsentForm", foreign_keys="[ConsentForm.signed_by_user_id]", back_populates="signed_by_user")
+    created_education_trackings = relationship("PatientEducationTracking", foreign_keys="[PatientEducationTracking.created_by_user_id]", back_populates="created_by_user")
+    updated_education_trackings = relationship("PatientEducationTracking", foreign_keys="[PatientEducationTracking.updated_by_user_id]", back_populates="updated_by_user")
 
     @property
     def full_name(self):

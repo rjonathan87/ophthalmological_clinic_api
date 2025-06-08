@@ -9,6 +9,7 @@ from app.api.routers import (
     invoice_router,
     invoiceitem_router,
     payment_router,
+    patient_education_tracking_router
 )
 
 from app.core.config import settings
@@ -73,6 +74,11 @@ app.include_router(
     routers.patientdocument_router,
     prefix="/api/v1/patient-documents",
     tags=["Patient Documents"]
+)
+app.include_router(
+    routers.patient_education_tracking_router,
+    prefix="/api/v1/patient-education-trackings",
+    tags=["Patient Education Trackings"]
 )
 app.include_router(
     routers.consentform_router,

@@ -424,6 +424,46 @@ class RolePermissionInDB(RolePermissionBase):
     class Config:
         from_attributes = True
 
+# Schemas para Patient Education Tracking
+class PatientEducationTrackingBase(BaseModel):
+    patient_id: int
+    resource_id: int
+    status: str = Field('Assigned', pattern="^(Assigned|InProgress|Completed)$")
+    progress: Optional[int] = 0
+    feedback: Optional[str] = None
+    quiz_results: Optional[dict] = None
+    notes: Optional[str] = None
+    completion_date: Optional[datetime] = None
+
+class PatientEducationTrackingCreate(PatientEducationTrackingBase):
+    pass
+
+class PatientEducationTrackingUpdate(BaseModel):
+    status: Optional[str] = Field(None, pattern="^(Assigned|InProgress|Completed)$")
+    progress: Optional[int] = None
+    feedback: Optional[str] = None
+    quiz_results: Optional[dict] = None
+    notes: Optional[str] = None
+    completion_date: Optional[datetime] = None
+
+class PatientEducationTrackingInDB(PatientEducationTrackingBase):
+    id: int
+    assigned_date: datetime
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class PatientEducationTrackingResponse(PatientEducationTrackingInDB):
+    patient: Optional[PatientInDB] = None
+    resource: Optional[EducationalResourceInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None
+
 # Schemas para Consultations
 class ConsultationBase(BaseModel):
     appointment_id: int
