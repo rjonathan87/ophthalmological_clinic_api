@@ -1,7 +1,16 @@
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, constr
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
+from decimal import Decimal
+
+from app.domain.models.performance_metrics_schemas import (
+    PerformanceMetricCreate,
+    PerformanceMetricUpdate,
+    PerformanceMetricResponse,
+    PerformanceMetricInDB,
+    MetricCategoryEnum
+)
 
 # Schemas para Roles
 class RoleBase(BaseModel):
@@ -893,3 +902,51 @@ class PaymentResponse(PaymentInDB):
     clinic: Optional[ClinicInDB] = None
     created_by_user: Optional[UserInDB] = None
     updated_by_user: Optional[UserInDB] = None
+
+# Schemas para Performance Metrics
+class MetricCategoryEnum(str, Enum):
+    CLINICAL = "Clinical"
+    FINANCIAL = "Financial" 
+    OPERATIONAL = "Operational"
+    PATIENT_SATISFACTION = "Patient Satisfaction"
+
+class PerformanceMetricBase(BaseModel):
+    clinic_id: int
+    metric_name: str
+    metric_value: Decimal = Field(..., decimal_places=2)
+    metric_target: Optional[Decimal] = Field(None, decimal_places=2)
+    measurement_date: datetime
+    metric_category: MetricCategoryEnum
+    description: Optional[str] = None
+    notes: Optional[str] = None
+
+class PerformanceMetricCreate(PerformanceMetricBase):
+    pass
+
+class PerformanceMetricUpdate(BaseModel):
+    metric_name: Optional[str] = None
+    metric_value: Optional[Decimal] = Field(None, decimal_places=2)
+    metric_target: Optional[Decimal] = Field(None, decimal_places=2)
+    measurement_date: Optional[datetime] = None
+    metric_category: Optional[MetricCategoryEnum] = None
+    description: Optional[str] = None
+    notes: Optional[str] = None
+
+class PerformanceMetricInDB(PerformanceMetricBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class PerformanceMetricResponse(PerformanceMetricInDB):
+    clinic: Optional[ClinicInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None
+
+    class Config:
+        from_attributes = True
