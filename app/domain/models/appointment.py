@@ -30,6 +30,7 @@ class Appointment(Base):
     created_by_user = relationship("User", foreign_keys=[created_by_user_id], back_populates="created_appointments")
     updated_by_user = relationship("User", foreign_keys=[updated_by_user_id], back_populates="updated_appointments")
     appointment_services = relationship("AppointmentService", back_populates="appointment")
-    resource = relationship("Resource", back_populates="appointments")
+    resource = relationship("Resource", back_populates="appointments")    
     consultations = relationship("Consultation", back_populates="appointment")
     consent_forms = relationship("ConsentForm", back_populates="appointment")
+    invoices = relationship("Invoice", back_populates="appointment")

@@ -8,6 +8,7 @@ from app.api.routers import (
     consentform_router,
     invoice_router,
     invoiceitem_router,
+    payment_router,
 )
 
 from app.core.config import settings
@@ -87,6 +88,11 @@ app.include_router(
     routers.invoiceitem_router,
     prefix="/api/v1/invoice-items",
     tags=["Invoice Items"]
+)
+app.include_router(
+    routers.payment_router,
+    prefix="/api/v1/payments",
+    tags=["Payments"]
 )
 
 @app.get("/")

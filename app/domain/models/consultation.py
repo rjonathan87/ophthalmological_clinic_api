@@ -37,3 +37,4 @@ class Consultation(Base):
     visualacuityexams = relationship("VisualAcuityExam", back_populates="consultation", cascade="all, delete-orphan")
     iopexams = relationship("IOPExam", back_populates="consultation", cascade="all, delete-orphan")
     invoices = relationship("Invoice", back_populates="consultation")
+    consent_forms = relationship("ConsentForm", back_populates="consultation")
