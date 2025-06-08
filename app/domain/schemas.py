@@ -271,8 +271,8 @@ class AppointmentServiceInDB(AppointmentServiceBase):
 class AuditLogBase(BaseModel):
     user_id: Optional[int] = None
     clinic_id: Optional[int] = None
-    action_type: str
-    entity_type: str
+    action_type: str = Field(..., description="Tipo de acción (CREATE, UPDATE, DELETE, LOGIN, etc.)")
+    entity_type: str = Field(..., description="Tipo de entidad (Patient, Appointment, User, etc.)")
     entity_id: Optional[str] = None
     details: Optional[str] = None
     old_values: Optional[dict] = None
@@ -283,34 +283,24 @@ class AuditLogBase(BaseModel):
     related_records: Optional[dict] = None
     system_component: Optional[str] = None
     is_reviewed: Optional[bool] = False
+    review_notes: Optional[str] = None
     reviewed_by_user_id: Optional[int] = None
 
 class AuditLogCreate(AuditLogBase):
     pass
 
-class AuditLogUpdate(AuditLogBase):
-    # Audit logs are typically immutable, but allowing update for 'is_reviewed' and 'reviewed_by_user_id'
+class AuditLogUpdate(BaseModel):
     is_reviewed: Optional[bool] = None
+    review_notes: Optional[str] = None
     reviewed_by_user_id: Optional[int] = None
-    # Prevent updating other fields
-    user_id: Optional[int] = Field(None, exclude=True)
-    clinic_id: Optional[int] = Field(None, exclude=True)
-    action_type: Optional[str] = Field(None, exclude=True)
-    entity_type: Optional[str] = Field(None, exclude=True)
-    entity_id: Optional[str] = Field(None, exclude=True)
-    details: Optional[str] = Field(None, exclude=True)
-    old_values: Optional[dict] = Field(None, exclude=True)
-    new_values: Optional[dict] = Field(None, exclude=True)
-    ip_address: Optional[str] = Field(None, exclude=True)
-    user_agent: Optional[str] = Field(None, exclude=True)
-    severity: Optional[str] = Field(None, exclude=True)
-    related_records: Optional[dict] = Field(None, exclude=True)
-    system_component: Optional[str] = Field(None, exclude=True)
-
 
 class AuditLogInDB(AuditLogBase):
     id: int
-    timestamp: datetime
+    created_at: datetime
+    reviewed_at: Optional[datetime] = None
+    user: Optional[UserInDB] = None
+    clinic: Optional[ClinicInDB] = None
+    reviewed_by_user: Optional[UserInDB] = None
 
     class Config:
         from_attributes = True
