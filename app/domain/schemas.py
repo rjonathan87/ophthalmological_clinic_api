@@ -659,3 +659,47 @@ class IOPExamResponse(IOPExamInDB):
     consultation: Optional[ConsultationInDB] = None
     created_by_user: Optional[UserInDB] = None
     updated_by_user: Optional[UserInDB] = None
+
+# Schemas para PatientDocuments
+class PatientDocumentBase(BaseModel):
+    patient_id: int
+    clinic_id: int
+    document_type: str
+    title: str
+    file_path: str
+    mime_type: str
+    file_size: int
+    document_date: datetime    
+    description: Optional[str] = None
+    status: str = Field('Active', pattern="^(Active|Archived|Deleted)$")
+    is_private: bool = False
+    document_metadata: Optional[dict] = None
+
+class PatientDocumentCreate(PatientDocumentBase):
+    pass
+
+class PatientDocumentUpdate(BaseModel):
+    title: Optional[str] = None
+    document_type: Optional[str] = None    
+    description: Optional[str] = None
+    status: Optional[str] = Field(None, pattern="^(Active|Archived|Deleted)$")
+    is_private: Optional[bool] = None
+    document_metadata: Optional[dict] = None
+
+class PatientDocumentInDB(PatientDocumentBase):
+    id: int
+    upload_date: datetime
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class PatientDocumentResponse(PatientDocumentInDB):
+    patient: Optional[PatientInDB] = None
+    clinic: Optional[ClinicInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None
