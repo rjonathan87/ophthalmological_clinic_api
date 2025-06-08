@@ -15,6 +15,7 @@ from .iopexam import IOPExam
 from .patientdocument import PatientDocument
 from .consentform import ConsentForm
 from .invoice import Invoice
+from .payment import Payment
 
 
 __all__ = [
@@ -32,7 +33,7 @@ __all__ = [
     "Patient",
     "User",
     "IOPExam",
-    "PatientDocument",
-    "ConsentForm",
-    "Invoice"
+    "PatientDocument",    "ConsentForm",
+    "Invoice",
+    "Payment"
 ]

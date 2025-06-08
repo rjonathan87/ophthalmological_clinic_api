@@ -826,3 +826,40 @@ class InvoiceItemInDB(InvoiceItemBase):
 class InvoiceItemResponse(InvoiceItemInDB):
     invoice: Optional[InvoiceInDB] = None
     service: Optional[ServiceInDB] = None
+
+# Schemas para Pagos
+class PaymentBase(BaseModel):
+    invoice_id: int
+    patient_id: int
+    clinic_id: int
+    amount: float
+    payment_date: datetime = Field(default_factory=datetime.now)
+    payment_method: str = Field(..., description="Método de pago (Cash, Credit Card, Bank Transfer, Insurance, etc.)")
+    transaction_id: Optional[str] = None
+    payment_status: str = Field('Processed', pattern='^(Processed|Failed|Refunded|Voided)$')
+    notes: Optional[str] = None
+
+class PaymentCreate(PaymentBase):
+    pass
+
+class PaymentUpdate(BaseModel):
+    payment_status: Optional[str] = Field(None, pattern='^(Processed|Failed|Refunded|Voided)$')
+    notes: Optional[str] = None
+
+class PaymentInDB(PaymentBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class PaymentResponse(PaymentInDB):
+    invoice: Optional[InvoiceInDB] = None
+    patient: Optional[PatientInDB] = None
+    clinic: Optional[ClinicInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None

@@ -51,6 +51,8 @@ class User(Base):
     created_visualacuityexams = relationship("VisualAcuityExam", foreign_keys="[VisualAcuityExam.created_by_user_id]", back_populates="created_by_user")
     updated_visualacuityexams = relationship("VisualAcuityExam", foreign_keys="[VisualAcuityExam.updated_by_user_id]", back_populates="updated_by_user")
     created_iopexams = relationship("IOPExam", foreign_keys="[IOPExam.created_by_user_id]", back_populates="created_by_user")
+    created_payments = relationship("Payment", foreign_keys="[Payment.created_by_user_id]", back_populates="created_by_user")
+    updated_payments = relationship("Payment", foreign_keys="[Payment.updated_by_user_id]", back_populates="updated_by_user")
     updated_iopexams = relationship("IOPExam", foreign_keys="[IOPExam.updated_by_user_id]", back_populates="updated_by_user")
     created_consent_forms = relationship("ConsentForm", foreign_keys="[ConsentForm.created_by_user_id]", back_populates="created_by_user")
     updated_consent_forms = relationship("ConsentForm", foreign_keys="[ConsentForm.updated_by_user_id]", back_populates="updated_by_user")

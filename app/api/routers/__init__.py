@@ -22,6 +22,7 @@ from .patientdocument import router as patientdocument_router
 from .consentform import router as consentform_router
 from .invoice import router as invoice_router
 from .invoiceitem import router as invoiceitem_router
+from .payment import router as payment_router
 
 # Exportar los routers para que main.py pueda importarlos fácilmente
 __all__ = [
@@ -46,7 +47,7 @@ __all__ = [
     "visualacuityexam_router",
     "iopexam_router",
     "patientdocument_router",
-    "consentform_router",
-    "invoice_router",
-    "invoiceitem_router"
+    "consentform_router",    "invoice_router",
+    "invoiceitem_router",
+    "payment_router"
 ]
