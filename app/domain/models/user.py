@@ -44,6 +44,8 @@ class User(Base):
     updated_prescriptions = relationship("Prescription", foreign_keys="[Prescription.updated_by_user_id]", back_populates="updated_by_user")
     created_documents = relationship("PatientDocument", foreign_keys="[PatientDocument.created_by_user_id]", back_populates="created_by_user")
     updated_documents = relationship("PatientDocument", foreign_keys="[PatientDocument.updated_by_user_id]", back_populates="updated_by_user")
+    created_invoices = relationship("Invoice", foreign_keys="[Invoice.created_by_user_id]", back_populates="created_by_user")
+    updated_invoices = relationship("Invoice", foreign_keys="[Invoice.updated_by_user_id]", back_populates="updated_by_user")
     created_refractionexams = relationship("RefractionExam", foreign_keys="[RefractionExam.created_by_user_id]", back_populates="created_by_user")
     updated_refractionexams = relationship("RefractionExam", foreign_keys="[RefractionExam.updated_by_user_id]", back_populates="updated_by_user")
     created_visualacuityexams = relationship("VisualAcuityExam", foreign_keys="[VisualAcuityExam.created_by_user_id]", back_populates="created_by_user")

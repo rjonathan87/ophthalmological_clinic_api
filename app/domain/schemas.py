@@ -751,3 +751,46 @@ class ConsentFormResponse(ConsentFormInDB):
     created_by_user: Optional[UserInDB] = None
     updated_by_user: Optional[UserInDB] = None
     signed_by_user: Optional[UserInDB] = None
+
+# Schemas para Facturas
+class InvoiceBase(BaseModel):
+    patient_id: int
+    clinic_id: int
+    consultation_id: Optional[int] = None
+    appointment_id: Optional[int] = None
+    invoice_number: str
+    issue_date: datetime = Field(default_factory=datetime.now)
+    due_date: datetime
+    subtotal: float
+    tax: float
+    total: float
+    payment_status: str = Field('Pending', pattern='^(Pending|Paid|Partially Paid|Overdue|Cancelled|Refunded)$')
+    payment_method: Optional[str] = None
+    notes: Optional[str] = None
+
+class InvoiceCreate(InvoiceBase):
+    pass
+
+class InvoiceUpdate(BaseModel):
+    payment_status: Optional[str] = Field(None, pattern='^(Pending|Paid|Partially Paid|Overdue|Cancelled|Refunded)$')
+    payment_method: Optional[str] = None
+    notes: Optional[str] = None
+
+class InvoiceInDB(InvoiceBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
+    deleted_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class InvoiceResponse(InvoiceInDB):
+    patient: Optional[PatientInDB] = None
+    clinic: Optional[ClinicInDB] = None
+    consultation: Optional[ConsultationInDB] = None
+    appointment: Optional[AppointmentInDB] = None
+    created_by_user: Optional[UserInDB] = None
+    updated_by_user: Optional[UserInDB] = None

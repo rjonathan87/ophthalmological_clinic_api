@@ -30,3 +30,4 @@ class Clinic(Base):
     clinical_studies = relationship("ClinicalStudy", back_populates="clinic")
     consultations = relationship("Consultation", back_populates="clinic")
     consent_forms = relationship("ConsentForm", back_populates="clinic")
+    invoices = relationship("Invoice", back_populates="clinic")
