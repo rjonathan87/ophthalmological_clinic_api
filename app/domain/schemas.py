@@ -794,3 +794,35 @@ class InvoiceResponse(InvoiceInDB):
     appointment: Optional[AppointmentInDB] = None
     created_by_user: Optional[UserInDB] = None
     updated_by_user: Optional[UserInDB] = None
+
+# Schemas para InvoiceItems
+class InvoiceItemBase(BaseModel):
+    invoice_id: int
+    service_id: Optional[int] = None
+    description: str
+    quantity: int = 1
+    unit_price: float
+    discount: float = 0.00
+    total: float
+
+class InvoiceItemCreate(InvoiceItemBase):
+    pass
+
+class InvoiceItemUpdate(BaseModel):
+    description: Optional[str] = None
+    quantity: Optional[int] = None
+    unit_price: Optional[float] = None
+    discount: Optional[float] = None
+    total: Optional[float] = None
+
+class InvoiceItemInDB(InvoiceItemBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class InvoiceItemResponse(InvoiceItemInDB):
+    invoice: Optional[InvoiceInDB] = None
+    service: Optional[ServiceInDB] = None
