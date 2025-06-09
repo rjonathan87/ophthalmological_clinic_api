@@ -12,6 +12,11 @@ from app.domain.models.performance_metrics_schemas import (
     MetricCategoryEnum
 )
 
+# Schema para mensajes genéricos
+class Message(BaseModel):
+    message: str
+    details: Optional[Dict[str, Any]] = None
+
 # Schemas para Roles
 class RoleBase(BaseModel):
     name: str
@@ -260,9 +265,12 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
-    role_id: Optional[int] = None
-    permissions: List[str] = [] # Añadimos los permisos para la autorización
+    username: str
+
+class PasswordChange(BaseModel):
+    old_password: str
+    new_password: str
+    confirm_password: str
 
 # Schemas para AppointmentServices (tabla de relación)
 class AppointmentServiceBase(BaseModel):

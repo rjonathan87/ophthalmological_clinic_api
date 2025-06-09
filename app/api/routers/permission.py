@@ -7,7 +7,6 @@ from app.services.permission_service import PermissionService
 from app.api.dependencies import require_permission
 
 router = APIRouter(
-    # prefix="/permissions",
     tags=["Permissions"]
 )
 
@@ -15,7 +14,7 @@ router = APIRouter(
 def create_permission(
     permission: PermissionCreate,
     db: Session = Depends(get_db),
-    _=Depends(require_permission("admin.gestionar_roles"))
+    _=Depends(require_permission("admin.manage_roles"))
 ):
     service = PermissionService(db)
     return service.create_permission(permission)
@@ -25,7 +24,7 @@ def get_permissions(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    _=Depends(require_permission("admin.gestionar_roles"))
+    _=Depends(require_permission("admin.manage_roles"))
 ):
     service = PermissionService(db)
     return service.get_permissions(skip, limit)
@@ -34,7 +33,7 @@ def get_permissions(
 def get_permission(
     permission_id: int,
     db: Session = Depends(get_db),
-    _=Depends(require_permission("admin.gestionar_roles"))
+    _=Depends(require_permission("admin.manage_roles"))
 ):
     service = PermissionService(db)
     return service.get_permission(permission_id)
@@ -44,7 +43,7 @@ def update_permission(
     permission_id: int,
     permission: PermissionUpdate,
     db: Session = Depends(get_db),
-    _=Depends(require_permission("admin.gestionar_roles"))
+    _=Depends(require_permission("admin.manage_roles"))
 ):
     service = PermissionService(db)
     return service.update_permission(permission_id, permission)
@@ -53,7 +52,7 @@ def update_permission(
 def delete_permission(
     permission_id: int,
     db: Session = Depends(get_db),
-    _=Depends(require_permission("admin.gestionar_roles"))
+    _=Depends(require_permission("admin.manage_roles"))
 ):
     service = PermissionService(db)
     service.delete_permission(permission_id)

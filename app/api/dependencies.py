@@ -10,15 +10,25 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     user = get_current_user_from_token(db, token)
     if not user.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Usuario inactivo")
     return user
 
 def has_role(required_role_name: str):
     def role_checker(current_user: User = Depends(get_current_user)):
-        if not current_user.role or current_user.role.name != required_role_name:
+        if not current_user.role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions"
+                detail="Usuario sin rol asignado"
+            )
+            
+        # El superadmin tiene acceso a todo
+        if current_user.role.name == 'superadmin':
+            return current_user
+            
+        if current_user.role.name != required_role_name:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permisos insuficientes"
             )
         return current_user
     return role_checker
@@ -31,8 +41,12 @@ def require_permission(permission_name: str):
         if not current_user.role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="User has no role assigned"
+                detail="Usuario sin rol asignado"
             )
+        
+        # El superadmin tiene todos los permisos
+        if current_user.role.name == 'superadmin':
+            return current_user
             
         # Verificar si el rol tiene el permiso requerido
         has_permission = any(
@@ -43,17 +57,23 @@ def require_permission(permission_name: str):
         if not has_permission:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions"
+                detail="Permisos insuficientes"
             )
         return current_user
     return _require_permission
 
-# Ejemplos de roles específicos
+# Decoradores específicos para roles comunes
 def is_admin(current_user: User = Depends(get_current_user)):
     return has_role("admin")(current_user)
 
 def is_doctor(current_user: User = Depends(get_current_user)):
     return has_role("doctor")(current_user)
+
+def is_receptionist(current_user: User = Depends(get_current_user)):
+    return has_role("receptionist")(current_user)
+
+def is_assistant(current_user: User = Depends(get_current_user)):
+    return has_role("assistant")(current_user)
 
 def is_patient(current_user: User = Depends(get_current_user)):
     return has_role("patient")(current_user)

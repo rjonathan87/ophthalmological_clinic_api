@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Query
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.domain.schemas import (
@@ -18,76 +18,57 @@ router = APIRouter()
 def create_prescription(
     prescription: PrescriptionCreate,
     db: Session = Depends(get_db),
-    current_user: UserInDB = Depends(require_permission("prescripcion.crear"))
+    current_user = Depends(require_permission("consultations.prescribe"))
 ):
     service = PrescriptionService(db)
-    return service.create_prescription(prescription, current_user.id)
-
-@router.get("/{prescription_id}", response_model=PrescriptionResponse)
-def get_prescription(
-    prescription_id: int,
-    db: Session = Depends(get_db),
-    current_user: UserInDB = Depends(require_permission("prescripcion.ver"))
-):
-    service = PrescriptionService(db)
-    return service.get_prescription(prescription_id)
+    return service.create_prescription(prescription)
 
 @router.get("/", response_model=List[PrescriptionResponse])
 def get_prescriptions(
     skip: int = 0,
     limit: int = 100,
+    patient_id: Optional[int] = Query(None),
+    consultation_id: Optional[int] = Query(None),
     db: Session = Depends(get_db),
-    current_user: UserInDB = Depends(require_permission("prescripcion.ver_todos"))
+    current_user = Depends(require_permission("consultations.read"))
 ):
     service = PrescriptionService(db)
-    return service.get_prescriptions(skip, limit)
+    return service.get_prescriptions(
+        skip=skip,
+        limit=limit,
+        patient_id=patient_id,
+        consultation_id=consultation_id
+    )
 
-@router.get("/patient/{patient_id}", response_model=List[PrescriptionResponse])
-def get_patient_prescriptions(
-    patient_id: int,
-    skip: int = 0,
-    limit: int = 100,
+@router.get("/{prescription_id}", response_model=PrescriptionResponse)
+def get_prescription(
+    prescription_id: int,
     db: Session = Depends(get_db),
-    current_user: UserInDB = Depends(require_permission("prescripcion.ver_paciente"))
+    current_user = Depends(require_permission("consultations.read"))
 ):
     service = PrescriptionService(db)
-    return service.get_patient_prescriptions(patient_id, skip, limit)
-
-@router.get("/patient/{patient_id}/active", response_model=List[PrescriptionResponse])
-def get_active_patient_prescriptions(
-    patient_id: int,
-    db: Session = Depends(get_db),
-    current_user: UserInDB = Depends(require_permission("prescripcion.ver_paciente"))
-):
-    service = PrescriptionService(db)
-    return service.get_active_patient_prescriptions(patient_id)
-
-@router.get("/consultation/{consultation_id}", response_model=List[PrescriptionResponse])
-def get_consultation_prescriptions(
-    consultation_id: int,
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: UserInDB = Depends(require_permission("prescripcion.ver_consulta"))
-):
-    service = PrescriptionService(db)
-    return service.get_consultation_prescriptions(consultation_id, skip, limit)
+    return service.get_prescription(prescription_id)
 
 @router.put("/{prescription_id}", response_model=PrescriptionResponse)
 def update_prescription(
     prescription_id: int,
     prescription: PrescriptionUpdate,
     db: Session = Depends(get_db),
-    current_user: UserInDB = Depends(require_permission("prescripcion.actualizar"))
+    current_user = Depends(require_permission("consultations.prescribe"))
 ):
     service = PrescriptionService(db)
-    return service.update_prescription(prescription_id, prescription, current_user.id)
+    return service.update_prescription(prescription_id, prescription)
 
-@router.delete("/{prescription_id}")
+@router.delete("/{prescription_id}", status_code=204)
 def delete_prescription(
     prescription_id: int,
     db: Session = Depends(get_db),
-    current_user: UserInDB = Depends(require_permission("prescripcion.eliminar"))
+    current_user = Depends(require_permission("consultations.prescribe"))
 ):
     service = PrescriptionService(db)
-    return service.delete_prescription(prescription_id)
+    if not service.delete_prescription(prescription_id):
+        raise HTTPException(
+            status_code=404,
+            detail="Prescription not found"
+        )
+    return {"message": "Prescription deleted successfully"}

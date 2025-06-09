@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.api import routers
 from app.api.routers import (
     refractionexam_router,
@@ -28,6 +29,15 @@ app = FastAPI(
         "defaultModelExpandDepth": 2,  # Profundidad de expansión para los modelos
         "showExtensions": True,  # Muestra extensiones x-*
     }
+)
+
+# Configuración de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite todas las origins en desarrollo
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos los métodos
+    allow_headers=["*"],  # Permite todas las cabeceras
 )
 
 # Incluir los routers de la API

@@ -4,10 +4,9 @@ from typing import List
 from app.core.database import get_db
 from app.domain.schemas import RoleCreate, RoleUpdate, RoleInDB
 from app.services.role_service import RoleService
-from app.api.dependencies import get_current_user, require_permission
+from app.api.dependencies import require_permission
 
 router = APIRouter(
-    # prefix="/roles",
     tags=["Roles"]
 )
 
@@ -15,7 +14,7 @@ router = APIRouter(
 def create_role(
     role: RoleCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("roles.create"))
+    current_user = Depends(require_permission("admin.manage_roles"))
 ):
     service = RoleService(db)
     return service.create_role(role)
@@ -25,7 +24,7 @@ def get_roles(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("roles.read"))
+    current_user = Depends(require_permission("admin.manage_roles"))
 ):
     service = RoleService(db)
     return service.get_roles(skip, limit)
@@ -34,7 +33,7 @@ def get_roles(
 def get_role(
     role_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("roles.read"))
+    current_user = Depends(require_permission("admin.manage_roles"))
 ):
     service = RoleService(db)
     return service.get_role(role_id)
@@ -44,7 +43,7 @@ def update_role(
     role_id: int,
     role: RoleUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("roles.update"))
+    current_user = Depends(require_permission("admin.manage_roles"))
 ):
     service = RoleService(db)
     return service.update_role(role_id, role)
@@ -53,7 +52,8 @@ def update_role(
 def delete_role(
     role_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("roles.delete"))
+    current_user = Depends(require_permission("admin.manage_roles"))
 ):
     service = RoleService(db)
     service.delete_role(role_id)
+    return None
