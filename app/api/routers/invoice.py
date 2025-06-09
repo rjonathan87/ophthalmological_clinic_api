@@ -8,46 +8,39 @@ from app.api.dependencies import get_current_user, require_permission
 
 router = APIRouter()
 
-@router.post("/", response_model=schemas.InvoiceResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.InvoiceResponse)
 def create_invoice(
     invoice: schemas.InvoiceCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("factura.crear"))
+    current_user = Depends(require_permission("billing.create_invoice"))
 ):
     service = InvoiceService(db)
-    return service.create_invoice(invoice, current_user.id)
+    return service.create_invoice(invoice)
 
 @router.get("/", response_model=List[schemas.InvoiceResponse])
 def get_invoices(
-    patient_id: Optional[int] = None,
-    clinic_id: Optional[int] = None,
-    consultation_id: Optional[int] = None,
-    appointment_id: Optional[int] = None,
-    search: Optional[str] = None,
     skip: int = 0,
     limit: int = 100,
+    clinic_id: Optional[int] = Query(None),
+    patient_id: Optional[int] = Query(None),
+    status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("factura.ver"))
+    current_user = Depends(require_permission("billing.read_invoice"))
 ):
     service = InvoiceService(db)
-    
-    if search:
-        return service.search_invoices(search, clinic_id)
-    elif patient_id:
-        return service.get_patient_invoices(patient_id, skip, limit)
-    elif clinic_id:
-        return service.get_clinic_invoices(clinic_id, skip, limit)
-    elif consultation_id:
-        return service.get_consultation_invoices(consultation_id, skip, limit)
-    elif appointment_id:
-        return service.get_appointment_invoices(appointment_id, skip, limit)
-    return service.get_invoices(skip, limit)
+    return service.get_invoices(
+        skip=skip,
+        limit=limit,
+        clinic_id=clinic_id,
+        patient_id=patient_id,
+        status=status
+    )
 
 @router.get("/{invoice_id}", response_model=schemas.InvoiceResponse)
 def get_invoice(
     invoice_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("factura.ver"))
+    current_user = Depends(require_permission("billing.read_invoice"))
 ):
     service = InvoiceService(db)
     return service.get_invoice(invoice_id)
@@ -57,17 +50,17 @@ def update_invoice(
     invoice_id: int,
     invoice: schemas.InvoiceUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("factura.editar"))
+    current_user = Depends(require_permission("billing.update_invoice"))
 ):
     service = InvoiceService(db)
-    return service.update_invoice(invoice_id, invoice, current_user.id)
+    return service.update_invoice(invoice_id, invoice)
 
 @router.delete("/{invoice_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_invoice(
     invoice_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("factura.eliminar"))
+    current_user = Depends(require_permission("billing.delete_invoice"))
 ):
     service = InvoiceService(db)
     service.delete_invoice(invoice_id)
-    return None
+    return {"message": "Invoice deleted successfully"}

@@ -9,21 +9,21 @@ from app.domain.models import User as DBUser # Alias para evitar conflicto de no
 
 users_router = APIRouter()
 
-@users_router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+@users_router.post("/", response_model=schemas.UserResponse)
 def create_user(
-    user: schemas.UserCreate,
+    user: schemas.UserCreate, 
     db: Session = Depends(get_db),
-    current_user: DBUser = Depends(require_permission("admin.gestionar_usuarios"))
+    current_user = Depends(require_permission("users.create"))
 ):
     user_service = UserService(db)
     return user_service.create_user(user)
 
 @users_router.get("/", response_model=List[schemas.UserResponse])
-def get_all_users(
+def get_users(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: DBUser = Depends(require_permission("admin.gestionar_usuarios"))
+    current_user = Depends(require_permission("users.read"))
 ):
     user_service = UserService(db)
     return user_service.get_all_users(current_user=current_user, skip=skip, limit=limit)
@@ -32,16 +32,10 @@ def get_all_users(
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: DBUser = Depends(get_current_user) # Cualquier usuario logueado puede ver su propio perfil
+    current_user = Depends(require_permission("users.read"))
 ):
     user_service = UserService(db)
-    # Permite al usuario ver su propio perfil o a un admin ver cualquier perfil
-    if current_user.id == user_id or (current_user.role and any(
-        perm.name == "admin.gestionar_usuarios" 
-        for perm in current_user.role.permissions
-    )):
-        return user_service.get_user(user_id)
-    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
+    return user_service.get_user(user_id)
 
 @users_router.put("/{user_id}", response_model=schemas.UserResponse)
 def update_user(
@@ -51,9 +45,9 @@ def update_user(
     current_user: DBUser = Depends(get_current_user)
 ):
     user_service = UserService(db)
-    # Permite al usuario actualizar su propio perfil o a un admin actualizar cualquier perfil
+    # Permite al usuario actualizar su propio perfil o a alguien con permisos actualizar cualquier perfil
     if current_user.id == user_id or (current_user.role and any(
-        perm.name == "admin.gestionar_usuarios" 
+        perm.name == "users.manage" 
         for perm in current_user.role.permissions
     )):
         return user_service.update_user(user_id, user_update)
@@ -63,7 +57,7 @@ def update_user(
 def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: DBUser = Depends(require_permission("admin.gestionar_usuarios"))
+    current_user: DBUser = Depends(require_permission("users.manage"))
 ):
     user_service = UserService(db)
     user_service.delete_user(user_id)

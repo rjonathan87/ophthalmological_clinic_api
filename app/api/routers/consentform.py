@@ -12,10 +12,10 @@ router = APIRouter()
 def create_consent_form(
     consent_form: schemas.ConsentFormCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("consentform.crear"))
+    current_user = Depends(require_permission("consentform.create"))
 ):
     service = ConsentFormService(db)
-    return service.create_consent_form(consent_form, current_user.id)
+    return service.create_consent_form(consent_form)
 
 @router.get("/", response_model=List[schemas.ConsentFormResponse])
 def get_consent_forms(
@@ -27,24 +27,16 @@ def get_consent_forms(
     consultation_id: Optional[int] = Query(None),
     status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("consentform.ver"))
+    current_user = Depends(require_permission("consentform.read"))
 ):
     service = ConsentFormService(db)
-    return service.get_consent_forms(
-        skip=skip,
-        limit=limit,
-        clinic_id=clinic_id,
-        patient_id=patient_id,
-        appointment_id=appointment_id,
-        consultation_id=consultation_id,
-        status=status
-    )
+    return service.get_consent_forms(skip=skip, limit=limit)
 
 @router.get("/{consent_form_id}", response_model=schemas.ConsentFormResponse)
 def get_consent_form(
     consent_form_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("consentform.ver"))
+    current_user = Depends(require_permission("consentform.read"))
 ):
     service = ConsentFormService(db)
     return service.get_consent_form(consent_form_id)
@@ -55,7 +47,7 @@ def get_patient_consent_forms(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("consentform.ver"))
+    current_user = Depends(require_permission("consentform.read"))
 ):
     service = ConsentFormService(db)
     return service.get_patient_consent_forms(patient_id, skip, limit)
@@ -66,7 +58,7 @@ def get_clinic_consent_forms(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("consentform.ver"))
+    current_user = Depends(require_permission("consentform.read"))
 ):
     service = ConsentFormService(db)
     return service.get_clinic_consent_forms(clinic_id, skip, limit)
@@ -76,16 +68,16 @@ def update_consent_form(
     consent_form_id: int,
     consent_form: schemas.ConsentFormUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("consentform.editar"))
+    current_user = Depends(require_permission("consentform.update"))
 ):
     service = ConsentFormService(db)
-    return service.update_consent_form(consent_form_id, consent_form, current_user.id)
+    return service.update_consent_form(consent_form_id, consent_form)
 
 @router.delete("/{consent_form_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_consent_form(
     consent_form_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("consentform.eliminar"))
+    current_user = Depends(require_permission("consentform.delete"))
 ):
     service = ConsentFormService(db)
     if not service.delete_consent_form(consent_form_id):
