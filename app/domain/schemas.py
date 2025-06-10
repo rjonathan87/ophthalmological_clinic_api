@@ -194,7 +194,7 @@ class ServiceBase(BaseModel):
     name: str
     description: Optional[str] = None
     duration_minutes: Optional[int] = None
-    base_price: float = 0.00
+    base_price: int = 0
     is_active: bool = True
 
 class ServiceCreate(ServiceBase):
