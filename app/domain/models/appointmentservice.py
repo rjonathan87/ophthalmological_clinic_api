@@ -6,7 +6,7 @@ from sqlalchemy.dialects.mysql import JSON
 from typing import List, Optional
 
 class AppointmentService(Base):
-    __tablename__ = "appointment_services"
+    __tablename__ = "appointmentservices"
 
     id = Column(Integer, primary_key=True, index=True)
     appointment_id = Column(Integer, ForeignKey("appointments.id"), nullable=False)

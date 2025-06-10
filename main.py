@@ -11,7 +11,8 @@ from app.api.routers import (
     invoiceitem_router,
     payment_router,
     patient_education_tracking_router,
-    performance_metrics_router
+    performance_metrics_router,
+    leads
 )
 
 from app.core.config import settings
@@ -115,6 +116,11 @@ app.include_router(
     performance_metrics_router,
     prefix="/api/v1/performance-metrics",
     tags=["Performance Metrics"]
+)
+app.include_router(
+    routers.leads_router,
+    prefix="/api/leads",
+    tags=["Leads"]
 )
 
 @app.get("/")

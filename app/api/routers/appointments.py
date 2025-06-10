@@ -114,14 +114,17 @@ def delete_appointment(
 @router.post("/{appointment_id}/cancel")
 def cancel_appointment(
     appointment_id: int,
+    cancellation_data: Optional[schemas.AppointmentCancellation] = None,
     db: Session = Depends(get_db),
     current_user = Depends(require_permission("appointments.cancel"))
 ):
     """
     Cancels an appointment by its ID.
+    Optionally accepts a reason for cancellation.
     Requires 'appointments.cancel' permission.
     """
     service = AppointmentService(db)
-    if not service.cancel_appointment(appointment_id):
+    cancellation_reason = cancellation_data.reason if cancellation_data is not None else None
+    if not service.cancel_appointment(appointment_id, cancellation_reason):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
     return {"message": "Appointment canceled successfully"}

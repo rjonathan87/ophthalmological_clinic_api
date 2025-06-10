@@ -237,8 +237,19 @@ class AppointmentBase(BaseModel):
 class AppointmentCreate(AppointmentBase):
     pass
 
-class AppointmentUpdate(AppointmentBase):
-    pass
+class AppointmentUpdate(BaseModel):
+    clinic_id: Optional[int] = None
+    patient_id: Optional[int] = None
+    primary_doctor_id: Optional[int] = None
+    resource_id: Optional[int] = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    appointment_type: Optional[str] = None
+    status: Optional[str] = None
+    reason_for_visit: Optional[str] = None
+    cancellation_reason: Optional[str] = None
+    confirmation_sent_at: Optional[datetime] = None
+    reminder_sent_at: Optional[datetime] = None
 
 class AppointmentInDB(AppointmentBase):
     id: int
@@ -276,11 +287,20 @@ class PasswordChange(BaseModel):
 class AppointmentServiceBase(BaseModel):
     appointment_id: int
     service_id: int
+    notes: Optional[str] = None
 
 class AppointmentServiceCreate(AppointmentServiceBase):
-    pass
+    created_by_user_id: Optional[int] = None
+    updated_by_user_id: Optional[int] = None
 
 class AppointmentServiceInDB(AppointmentServiceBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    created_by_user_id: Optional[int]
+    updated_by_user_id: Optional[int]
+    deleted_at: Optional[datetime] = None
+
     class Config:
         from_attributes = True
 
@@ -958,3 +978,69 @@ class PerformanceMetricResponse(PerformanceMetricInDB):
 
     class Config:
         from_attributes = True
+
+# Schemas para la cancelación de citas
+class AppointmentCancellation(BaseModel):
+    """Esquema para la cancelación de una cita"""
+    reason: Optional[str] = None
+
+# Enums para Lead
+class LeadChannelEnum(str, Enum):
+    WEBCHAT = "webchat"
+    WHATSAPP = "whatsapp"
+    FACEBOOK = "facebook"
+    INSTAGRAM = "instagram"
+    PHONE = "phone"
+    EMAIL = "email"
+    WEBSITE = "website"
+    REFERRAL = "referral"
+    
+class LeadStatusEnum(str, Enum):
+    NEW = "new"
+    CONTACTED = "contacted"
+    SCHEDULED = "scheduled"
+    LOST = "lost"
+
+# Schemas para Lead
+class LeadBase(BaseModel):
+    first_name: str
+    last_name: str
+    mobile_phone: str
+    email: Optional[str] = None
+    age: Optional[int] = None
+    city: Optional[str] = None
+    service_id: Optional[int] = None
+    channel: LeadChannelEnum
+    notes: Optional[str] = None
+
+class LeadCreate(LeadBase):
+    status: LeadStatusEnum = LeadStatusEnum.NEW
+
+class LeadUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    mobile_phone: Optional[str] = None
+    email: Optional[str] = None
+    age: Optional[int] = None
+    city: Optional[str] = None
+    service_id: Optional[int] = None
+    channel: Optional[LeadChannelEnum] = None
+    status: Optional[LeadStatusEnum] = None
+    appointment_id: Optional[int] = None
+    notes: Optional[str] = None
+
+class LeadStatusUpdate(BaseModel):
+    status: LeadStatusEnum
+
+class LeadInDB(LeadBase):
+    lead_id: int
+    status: LeadStatusEnum
+    appointment_id: Optional[int] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class LeadResponse(LeadInDB):
+    service: Optional[ServiceInDB] = None

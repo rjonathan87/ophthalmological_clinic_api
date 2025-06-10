@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.domain import schemas
 from typing import List, Optional
 
@@ -6,10 +7,13 @@ from app.domain.models import AppointmentService
 
 class AppointmentServiceRepository:
     def __init__(self, db: Session):
-        self.db = db
-
+        self.db = db    
+    
     def create(self, appointment_service: schemas.AppointmentServiceCreate) -> AppointmentService:
-        db_appointment_service = AppointmentService(**appointment_service.model_dump())
+        data = appointment_service.model_dump(exclude_unset=True)
+        db_appointment_service = AppointmentService(**data)
+        db_appointment_service.created_at = func.now()
+        db_appointment_service.updated_at = func.now()
         self.db.add(db_appointment_service)
         self.db.commit()
         self.db.refresh(db_appointment_service)
