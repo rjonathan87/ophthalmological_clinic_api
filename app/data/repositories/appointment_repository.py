@@ -74,3 +74,45 @@ class AppointmentRepository:
             query = query.filter(Appointment.appointment_date <= end_date)
             
         return query.offset(skip).limit(limit).all()
+
+    def find_overlapping_appointments(
+        self, 
+        clinic_id: int,
+        doctor_id: int,
+        resource_id: int,
+        start_time: datetime,
+        end_time: datetime
+    ) -> List[Appointment]:
+        """
+        Encuentra citas que se solapen con el horario propuesto.
+        
+        Args:
+            clinic_id: ID de la clínica
+            doctor_id: ID del doctor
+            resource_id: ID del recurso
+            start_time: Hora de inicio propuesta
+            end_time: Hora de fin propuesta
+            
+        Returns:
+            List[Appointment]: Lista de citas que se solapan con el horario
+        """
+        try:
+            from sqlalchemy import or_, and_
+            
+            query = self.db.query(Appointment).filter(
+                Appointment.clinic_id == clinic_id,
+                Appointment.primary_doctor_id == doctor_id,
+                Appointment.resource_id == resource_id,
+                Appointment.status.not_in(['Cancelled', 'NoShow']),
+                Appointment.deleted_at == None,
+                or_(
+                    and_(Appointment.start_time <= end_time, Appointment.end_time >= start_time),
+                    and_(Appointment.start_time >= start_time, Appointment.start_time < end_time),
+                    and_(Appointment.end_time > start_time, Appointment.end_time <= end_time)
+                )
+            )
+            
+            return query.all()
+        except Exception as e:
+            # Registrar el error si hay un logger disponible
+            raise Exception(f"Error al buscar citas solapadas: {str(e)}")

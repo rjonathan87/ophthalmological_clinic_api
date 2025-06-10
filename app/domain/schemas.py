@@ -1044,3 +1044,9 @@ class LeadInDB(LeadBase):
 
 class LeadResponse(LeadInDB):
     service: Optional[ServiceInDB] = None
+
+# Schema para verificación de disponibilidad de horarios
+class AppointmentAvailabilityResponse(BaseModel):
+    """Esquema para la respuesta de disponibilidad de horarios."""
+    is_available: bool
+    message: str

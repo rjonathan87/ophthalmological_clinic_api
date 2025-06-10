@@ -58,6 +58,51 @@ def get_appointments(
         end_date=end_date
     )
 
+@router.get("/check-availability", response_model=schemas.AppointmentAvailabilityResponse)
+def check_time_slot_availability(
+    clinic_id: int,
+    doctor_id: int,
+    resource_id: int,
+    start_time: datetime,
+    end_time: datetime,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_permission("appointments.read"))
+):
+    """
+    Verifica la disponibilidad de un horario para agendar una cita.
+    
+    Args:
+        clinic_id: ID de la clínica
+        doctor_id: ID del doctor
+        resource_id: ID del recurso (consultorio)
+        start_time: Hora de inicio propuesta
+        end_time: Hora de fin propuesta
+        
+    Returns:
+        Un objeto indicando si el horario está disponible
+    
+    Requires 'appointments.read' permission.
+    """
+    try:
+        service = AppointmentService(db)
+        is_available = service.is_time_slot_available(
+            clinic_id=clinic_id,
+            doctor_id=doctor_id,
+            resource_id=resource_id,
+            start_time=start_time,
+            end_time=end_time
+        )
+        
+        return schemas.AppointmentAvailabilityResponse(
+            is_available=is_available,
+            message="El horario está disponible" if is_available else "El horario no está disponible"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al verificar disponibilidad: {str(e)}"
+        )
+
 @router.get("/{appointment_id}", response_model=schemas.AppointmentResponse)
 def get_appointment(
     appointment_id: int,
@@ -128,3 +173,48 @@ def cancel_appointment(
     if not service.cancel_appointment(appointment_id, cancellation_reason):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found")
     return {"message": "Appointment canceled successfully"}
+
+@router.get("/check-availability", response_model=schemas.AppointmentAvailabilityResponse)
+def check_time_slot_availability(
+    clinic_id: int,
+    doctor_id: int,
+    resource_id: int,
+    start_time: datetime,
+    end_time: datetime,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_permission("appointments.read"))
+):
+    """
+    Verifica la disponibilidad de un horario para agendar una cita.
+    
+    Args:
+        clinic_id: ID de la clínica
+        doctor_id: ID del doctor
+        resource_id: ID del recurso (consultorio)
+        start_time: Hora de inicio propuesta
+        end_time: Hora de fin propuesta
+        
+    Returns:
+        Un objeto indicando si el horario está disponible
+    
+    Requires 'appointments.read' permission.
+    """
+    try:
+        service = AppointmentService(db)
+        is_available = service.is_time_slot_available(
+            clinic_id=clinic_id,
+            doctor_id=doctor_id,
+            resource_id=resource_id,
+            start_time=start_time,
+            end_time=end_time
+        )
+        
+        return schemas.AppointmentAvailabilityResponse(
+            is_available=is_available,
+            message="El horario está disponible" if is_available else "El horario no está disponible"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al verificar disponibilidad: {str(e)}"
+        )

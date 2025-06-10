@@ -5,6 +5,10 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
 
+class AppointmentServiceError(Exception):
+    """Custom exception for AppointmentService errors."""
+    pass
+
 class AppointmentService:
     def __init__(self, db: Session):
         self.repository = AppointmentRepository(db)
@@ -83,3 +87,38 @@ class AppointmentService:
         appointment_update = schemas.AppointmentUpdate(**update_data)
         self.repository.update(appointment_id, appointment_update)
         return True
+
+    def is_time_slot_available(
+        self,
+        clinic_id: int,
+        doctor_id: int,
+        resource_id: int, 
+        start_time: datetime,
+        end_time: datetime
+    ) -> bool:
+        """
+        Verifica si un horario está disponible para agendar una cita.
+        
+        Args:
+            clinic_id: ID de la clínica
+            doctor_id: ID del doctor 
+            resource_id: ID del recurso (consultorio)
+            start_time: Hora de inicio propuesta
+            end_time: Hora de fin propuesta
+            
+        Returns:
+            bool: True si el horario está disponible, False si ya existe una cita
+        """
+        try:
+            overlapping_appointments = self.repository.find_overlapping_appointments(
+                clinic_id=clinic_id,
+                doctor_id=doctor_id,
+                resource_id=resource_id,
+                start_time=start_time,
+                end_time=end_time
+            )
+            
+            return len(overlapping_appointments) == 0
+        except Exception as e:
+            # Registrar el error si hay un logger disponible
+            raise AppointmentServiceError(f"No se pudo verificar la disponibilidad del horario: {str(e)}")
