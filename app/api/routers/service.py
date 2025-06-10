@@ -36,6 +36,21 @@ def get_clinic_services(
     service_service = ServiceService(db)
     return service_service.get_clinic_services(clinic_id, skip=skip, limit=limit)
 
+@router.get("/", response_model=List[schemas.ServiceResponse])
+def get_services(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """
+    Lista todos los servicios.
+    Útil para cuando el bot muestra los servicios como "botones rápidos".
+    Solo requiere autenticación, sin permisos específicos.
+    """
+    service_service = ServiceService(db)
+    return service_service.get_services(skip=skip, limit=limit)
+
 @router.get("/{service_id}", response_model=schemas.ServiceResponse)
 def get_service(
     service_id: int,

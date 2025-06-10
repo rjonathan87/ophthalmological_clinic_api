@@ -20,9 +20,9 @@ class Service(Base):
     created_by_user_id = Column(Integer, ForeignKey("users.id"))
     updated_by_user_id = Column(Integer, ForeignKey("users.id"))
     deleted_at = Column(DateTime)
-    
     clinic = relationship("Clinic", back_populates="services")
     created_by_user = relationship("User", foreign_keys=[created_by_user_id], back_populates="created_services")
     updated_by_user = relationship("User", foreign_keys=[updated_by_user_id], back_populates="updated_services")
     appointment_services = relationship("AppointmentService", back_populates="service")
     invoice_items = relationship("InvoiceItem", back_populates="service")
+    leads = relationship("Lead", back_populates="service")

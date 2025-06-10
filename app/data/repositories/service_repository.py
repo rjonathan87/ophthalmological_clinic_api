@@ -22,12 +22,23 @@ class ServiceRepository:
         query = self.db.query(Service).filter(Service.id == service_id, Service.deleted_at == None)
         if clinic_id:
             query = query.filter(Service.clinic_id == clinic_id)
-        return query.first()
-
+        return query.first()    
+    
     def get_by_clinic(self, clinic_id: int, skip: int = 0, limit: int = 100) -> List[Service]:
         return self.db.query(Service).filter(
             and_(
                 Service.clinic_id == clinic_id,
+                Service.deleted_at == None
+            )
+        ).offset(skip).limit(limit).all()
+        
+    def get_all_active(self, skip: int = 0, limit: int = 100) -> List[Service]:
+        """
+        Obtiene todos los servicios activos de todas las clínicas.
+        """
+        return self.db.query(Service).filter(
+            and_(
+                Service.is_active == True,
                 Service.deleted_at == None
             )
         ).offset(skip).limit(limit).all()

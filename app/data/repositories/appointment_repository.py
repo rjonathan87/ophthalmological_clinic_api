@@ -57,3 +57,20 @@ class AppointmentRepository:
             Appointment.primary_doctor_id == doctor_id,
             Appointment.deleted_at == None
         ).offset(skip).limit(limit).all()
+
+    def get_by_status(self, status: str, skip: int = 0, limit: int = 100) -> List[Appointment]:
+        return self.db.query(Appointment).filter(
+            Appointment.status == status,
+            Appointment.deleted_at == None
+        ).offset(skip).limit(limit).all()
+
+    def get_by_date_range(self, start_date: datetime, end_date: datetime, skip: int = 0, limit: int = 100) -> List[Appointment]:
+        query = self.db.query(Appointment).filter(Appointment.deleted_at == None)
+        
+        if start_date:
+            query = query.filter(Appointment.appointment_date >= start_date)
+        
+        if end_date:
+            query = query.filter(Appointment.appointment_date <= end_date)
+            
+        return query.offset(skip).limit(limit).all()

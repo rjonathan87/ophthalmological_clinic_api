@@ -15,8 +15,7 @@ def create_appointment_service(
     current_user = Depends(require_permission("appointment.manage_services"))
 ):
     service = AppointmentServiceService(db)
-    # Optional: Add checks here to ensure appointment_id and service_id exist
-    return service.create_appointment_service(appointment_service)
+    return service.create_appointment_service(appointment_service, current_user.id)
 
 @router.get("/{appointment_id}/services", response_model=List[schemas.AppointmentServiceInDB])
 def get_services_for_appointment(

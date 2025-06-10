@@ -23,10 +23,17 @@ class ServiceService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Service with id {service_id} not found"
             )
-        return db_service
-
+        return db_service    
+    
     def get_clinic_services(self, clinic_id: int, skip: int = 0, limit: int = 100) -> List[schemas.ServiceInDB]:
         return self.repository.get_by_clinic(clinic_id, skip, limit)
+        
+    def get_services(self, skip: int = 0, limit: int = 100) -> List[schemas.ServiceInDB]:
+        """
+        Obtiene todos los servicios activos, independientemente de la clínica.
+        Útil para listar servicios disponibles para leads/bots.
+        """
+        return self.repository.get_all_active(skip, limit)
 
     def update_service(self, service_id: int, service: schemas.ServiceUpdate, user_id: int) -> schemas.ServiceInDB:
         db_service = self.repository.get_by_id(service_id)
