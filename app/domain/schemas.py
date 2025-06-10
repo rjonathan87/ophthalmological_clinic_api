@@ -1045,8 +1045,17 @@ class LeadInDB(LeadBase):
 class LeadResponse(LeadInDB):
     service: Optional[ServiceInDB] = None
 
+# Schema para horarios alternativos sugeridos
+class AppointmentAlternative(BaseModel):
+    """Esquema para representar un horario alternativo para una cita."""
+    start_time: datetime
+    end_time: datetime
+    doctor_id: Optional[int] = None  # Si es diferente al doctor original
+    doctor_name: Optional[str] = None  # Nombre del doctor si es diferente
+    
 # Schema para verificación de disponibilidad de horarios
 class AppointmentAvailabilityResponse(BaseModel):
     """Esquema para la respuesta de disponibilidad de horarios."""
     is_available: bool
     message: str
+    alternative_slots: Optional[List[AppointmentAlternative]] = None
